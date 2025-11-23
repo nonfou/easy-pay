@@ -1,0 +1,607 @@
+openapi: 3.0.3
+info:
+  title: mpay-spring API
+  version: 0.1.0-draft
+  description: >-
+    mpay-spring 阶段 1 OpenAPI 草稿。涵盖公共下单、收银台查询以及后台管理的主要接口框架。
+servers:
+  - url: https://api.mpay.local
+    description: 开发环境
+  - url: https://api.mpay.com
+    description: 生产环境
+
+tags:
+  - name: PublicOrder
+    description: 商户对接的开放支付接口
+  - name: ConsoleOrder
+    description: 后台订单管理
+  - name: Account
+    description: 收款账号与通道
+  - name: Plugin
+    description: 插件市场与配置
+  - name: User
+    description: 后台用户/商户管理
+
+paths:
+  /api/public/orders:
+    post:
+      tags: [PublicOrder]
+      summary: 创建支付订单（替代 submit/mapi）
+      description: >-
+        商户以 JSON 提交订单。保持与旧系统参数兼容，新增 `clientMetadata` 支持。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PublicCreateOrderRequest'
+      responses:
+        '201':
+          description: 创建成功，返回订单 ID 与收银台地址
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicCreateOrderResponse'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '409':
+          description: 商户订单重复
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/public/orders/{orderId}:
+    get:
+      tags: [PublicOrder]
+      summary: 查询收银台信息
+      parameters:
+        - in: path
+          name: orderId
+          required: true
+          schema:
+            type: string
+          description: 平台订单号
+      responses:
+        '200':
+          description: 返回订单状态、二维码等信息
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicOrderDetail'
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /api/public/orders/{orderId}/state:
+    get:
+      tags: [PublicOrder]
+      summary: 轮询订单状态
+      parameters:
+        - $ref: '#/components/parameters/OrderId'
+      responses:
+        '200':
+          description: 订单状态信息
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicOrderState'
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /api/public/orders/{orderId}/notify:
+    post:
+      tags: [PublicOrder]
+      summary: 第三方监听客户端上报收款记录
+      description: 替代 `mpayNotify`，供本地监听器推送匹配记录。
+      parameters:
+        - $ref: '#/components/parameters/OrderId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentRecord'
+      responses:
+        '202':
+          description: 已受理
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AckResponse'
+
+  /api/console/orders:
+    get:
+      tags: [ConsoleOrder]
+      summary: 后台订单列表
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: orderId
+          schema: { type: string }
+        - in: query
+          name: outTradeNo
+          schema: { type: string }
+        - in: query
+          name: pid
+          schema: { type: integer }
+        - in: query
+          name: state
+          schema:
+            type: integer
+            enum: [0,1]
+        - in: query
+          name: type
+          schema: { type: string }
+        - in: query
+          name: platform
+          schema: { type: string }
+        - in: query
+          name: createdAtFrom
+          schema: { type: string, format: date-time }
+        - in: query
+          name: createdAtTo
+          schema: { type: string, format: date-time }
+        - in: query
+          name: page
+          schema: { type: integer, minimum: 1, default: 1 }
+        - in: query
+          name: pageSize
+          schema: { type: integer, minimum: 1, maximum: 200, default: 20 }
+      responses:
+        '200':
+          description: 分页订单列表
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageOrder'
+
+    post:
+      tags: [ConsoleOrder]
+      summary: 手动创建测试订单
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConsoleCreateOrderRequest'
+      responses:
+        '201':
+          description: 创建成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicCreateOrderResponse'
+
+  /api/console/orders/{id}/state:
+    patch:
+      tags: [ConsoleOrder]
+      summary: 修改订单状态/补单
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConsoleUpdateOrderStateRequest'
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+
+  /api/accounts:
+    get:
+      tags: [Account]
+      summary: 收款账号列表
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: platform
+          schema: { type: string }
+        - in: query
+          name: state
+          schema: { type: integer, enum: [0,1] }
+        - in: query
+          name: pattern
+          schema: { type: integer, enum: [0,1] }
+        - in: query
+          name: account
+          schema: { type: string }
+        - in: query
+          name: page
+          schema: { type: integer, default: 1 }
+        - in: query
+          name: pageSize
+          schema: { type: integer, default: 20 }
+      responses:
+        '200':
+          description: 分页账号列表
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageAccount'
+    post:
+      tags: [Account]
+      summary: 新增收款账号
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountCreateRequest'
+      responses:
+        '201': { $ref: '#/components/responses/Created' }
+
+  /api/accounts/{accountId}/channels:
+    get:
+      tags: [Account]
+      summary: 收款终端列表
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: accountId
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: 终端列表
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Channel'
+    post:
+      tags: [Account]
+      summary: 添加收款终端
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: accountId
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChannelCreateRequest'
+      responses:
+        '201': { $ref: '#/components/responses/Created' }
+
+  /api/plugins:
+    get:
+      tags: [Plugin]
+      summary: 插件列表（支持全部/已装/待装）
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: show
+          schema:
+            type: integer
+            enum: [0,1,2]
+            description: 0=全部 1=已安装 2=未安装
+      responses:
+        '200':
+          description: 插件列表
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Plugin'
+    post:
+      tags: [Plugin]
+      summary: 新增/导入插件元信息
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PluginCreateRequest'
+      responses:
+        '201': { $ref: '#/components/responses/Created' }
+
+  /api/plugins/{platform}/state:
+    patch:
+      tags: [Plugin]
+      summary: 启用/停用插件
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: platform
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                state:
+                  type: integer
+                  enum: [0,1]
+      responses:
+        '200': { $ref: '#/components/responses/Ok' }
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    OrderId:
+      in: path
+      name: orderId
+      required: true
+      schema:
+        type: string
+
+  responses:
+    Ok:
+      description: 操作成功
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AckResponse'
+    Created:
+      description: 创建成功
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AckResponse'
+    BadRequest:
+      description: 参数错误
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Unauthorized:
+      description: 鉴权失败
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: 未找到资源
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+  schemas:
+    AckResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 0
+        msg:
+          type: string
+          example: ok
+        data:
+          type: object
+          additionalProperties: true
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 400
+        msg:
+          type: string
+          example: invalid signature
+    PublicCreateOrderRequest:
+      type: object
+      required: [pid,type,outTradeNo,name,money,notifyUrl,sign]
+      properties:
+        pid:
+          type: integer
+        type:
+          type: string
+          description: 支付方式（wxpay/alipay/...）
+        outTradeNo:
+          type: string
+        name:
+          type: string
+        money:
+          type: number
+          format: double
+        notifyUrl:
+          type: string
+          format: uri
+        returnUrl:
+          type: string
+          format: uri
+        clientIp:
+          type: string
+        device:
+          type: string
+        attach:
+          type: object
+          additionalProperties: true
+        sign:
+          type: string
+        signType:
+          type: string
+          default: MD5
+        clientMetadata:
+          type: object
+          description: 新增字段，记录 UA/SDK 信息
+    PublicCreateOrderResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 0
+        msg:
+          type: string
+        orderId:
+          type: string
+        cashierUrl:
+          type: string
+    PublicOrderDetail:
+      type: object
+      properties:
+        orderId:
+          type: string
+        type:
+          type: string
+        money:
+          type: number
+        reallyPrice:
+          type: number
+        state:
+          type: integer
+        expireIn:
+          type: integer
+          description: 剩余秒数
+        payUrl:
+          type: string
+        channelType:
+          type: string
+    PublicOrderState:
+      type: object
+      properties:
+        orderId:
+          type: string
+        state:
+          type: integer
+          enum: [0,1,2]
+        expireIn:
+          type: integer
+        returnUrl:
+          type: string
+        notifyPayload:
+          type: object
+          additionalProperties: true
+    PaymentRecord:
+      type: object
+      properties:
+        pid: { type: integer }
+        aid: { type: integer }
+        payway: { type: string }
+        channel: { type: string }
+        price: { type: number }
+        platformOrder: { type: string }
+        extra:
+          type: object
+          additionalProperties: true
+    ConsoleCreateOrderRequest:
+      type: object
+      required: [pid,type,amount]
+      properties:
+        pid: { type: integer }
+        type: { type: string }
+        amount: { type: number }
+        note: { type: string }
+    ConsoleUpdateOrderStateRequest:
+      type: object
+      required: [state]
+      properties:
+        state:
+          type: integer
+          enum: [0,1]
+        resendNotify:
+          type: boolean
+          default: false
+    PageOrder:
+      type: object
+      properties:
+        page: { type: integer }
+        pageSize: { type: integer }
+        total: { type: integer }
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PublicOrderDetail'
+    PageAccount:
+      type: object
+      properties:
+        page: { type: integer }
+        pageSize: { type: integer }
+        total: { type: integer }
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Account'
+    Account:
+      type: object
+      properties:
+        id: { type: integer }
+        pid: { type: integer }
+        platform: { type: string }
+        account: { type: string }
+        state: { type: integer }
+        pattern: { type: integer }
+        channelCount: { type: integer }
+    AccountCreateRequest:
+      type: object
+      required: [platform,account,password]
+      properties:
+        platform: { type: string }
+        account: { type: string }
+        password: { type: string }
+        pattern:
+          type: integer
+          enum: [0,1]
+        params:
+          type: object
+          additionalProperties: true
+    Channel:
+      type: object
+      properties:
+        id: { type: integer }
+        channel: { type: string }
+        qrcode: { type: string }
+        state: { type: integer }
+        lastTime: { type: string, format: date-time }
+        type: { type: string }
+    ChannelCreateRequest:
+      type: object
+      required: [channel]
+      properties:
+        channel: { type: string }
+        qrcode: { type: string }
+        type: { type: string }
+    Plugin:
+      type: object
+      properties:
+        platform: { type: string }
+        name: { type: string }
+        className: { type: string }
+        state: { type: integer }
+        price: { type: string }
+        describe: { type: string }
+        website: { type: string }
+        install: { type: boolean }
+    PluginCreateRequest:
+      type: object
+      required: [platform,name,className]
+      properties:
+        platform: { type: string }
+        name: { type: string }
+        className: { type: string }
+        price: { type: string }
+        describe: { type: string }
+        website: { type: string }
+        query:
+          type: object
+          additionalProperties: true

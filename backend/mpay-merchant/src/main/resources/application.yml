@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: mpay-merchant
+  datasource:
+    url: jdbc:mysql://localhost:3307/mpay?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: root
+    password: rootpass
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+
+server:
+  port: 8110

@@ -1,0 +1,92 @@
+@startuml
+!theme plain
+entity "user" as user {
+  *id : bigint
+  --
+  pid : int
+  username : varchar
+  password : varchar
+  nickname : varchar
+  secret_key : varchar
+  state : tinyint
+  role : tinyint
+  delete_time : timestamp
+}
+
+entity "pay_account" as pay_account {
+  *id : bigint
+  --
+  pid : int
+  platform : varchar
+  account : varchar
+  password : varchar
+  state : tinyint
+  pattern : tinyint
+  params : json
+  created_at : datetime
+  updated_at : datetime
+}
+
+entity "pay_channel" as pay_channel {
+  *id : bigint
+  --
+  account_id : bigint
+  channel : varchar
+  qrcode : varchar
+  last_time : datetime
+  state : tinyint
+  type : varchar
+}
+
+entity "orders" as orders {
+  *id : bigint
+  --
+  order_id : varchar
+  pid : int
+  type : varchar
+  out_trade_no : varchar
+  notify_url : varchar
+  return_url : varchar
+  name : varchar
+  money : decimal
+  really_price : decimal
+  clientip : varchar
+  device : varchar
+  param : text
+  state : tinyint
+  patt : tinyint
+  create_time : datetime
+  close_time : datetime
+  pay_time : datetime
+  aid : bigint
+  cid : bigint
+  platform_order : varchar
+}
+
+entity "plugin_definition" as plugin_definition {
+  *id : bigint
+  --
+  platform : varchar
+  name : varchar
+  class_name : varchar
+  price : decimal
+  describe : text
+  website : varchar
+}
+
+entity "plugin_settings" as plugin_settings {
+  *id : bigint
+  --
+  platform : varchar
+  state : tinyint
+  query : json
+  extra : json
+}
+
+user ||--o{ pay_account : "1:N"
+pay_account ||--o{ pay_channel : "1:N"
+user ||--o{ orders : "1:N"
+pay_account ||--o{ orders : "1:N (aid)"
+pay_channel ||--o{ orders : "1:N (cid)"
+plugin_definition ||--o{ plugin_settings : "1:N"
+@enduml

@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: mpay-bff-console
+
+server:
+  port: 8140

@@ -1,0 +1,50 @@
+version: "3.9"
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mpay-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: mpay
+      TZ: Asia/Shanghai
+    ports:
+      - "3307:3306"
+    volumes:
+      - ./infra/mysql/data:/var/lib/mysql
+      - ./infra/mysql/init:/docker-entrypoint-initdb.d
+    command:
+      - --default-authentication-plugin=mysql_native_password
+      - --lower_case_table_names=1
+    networks:
+      - mpay-net
+
+  redis:
+    image: redis:7-alpine
+    container_name: mpay-redis
+    restart: unless-stopped
+    ports:
+      - "6380:6379"
+    volumes:
+      - ./infra/redis/data:/data
+    command: ["redis-server", "--appendonly", "yes"]
+    networks:
+      - mpay-net
+
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: mpay-rabbitmq
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: mpay
+      RABBITMQ_DEFAULT_PASS: mpay123
+    ports:
+      - "5673:5672"
+      - "15673:15672"
+    networks:
+      - mpay-net
+
+networks:
+  mpay-net:
+    driver: bridge

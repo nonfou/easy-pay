@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: mpay-monitor
+  redis:
+    host: localhost
+    port: 6380
+
+server:
+  port: 8130
