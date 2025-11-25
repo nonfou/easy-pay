@@ -40,4 +40,10 @@ public class PublicCreateOrderDTO {
     private String sign;
 
     private String signType;
+
+    /** 请求时间戳（秒），用于防重放攻击 */
+    private Long timestamp;
+
+    /** 随机字符串，用于防重放攻击 */
+    private String nonce;
 }

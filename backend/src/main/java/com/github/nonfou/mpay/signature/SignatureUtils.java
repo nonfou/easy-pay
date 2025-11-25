@@ -24,6 +24,13 @@ public final class SignatureUtils {
         }
         sorted.put("clientip", request.getClientIp());
         sorted.put("device", request.getDevice());
+        // 防重放参数加入签名
+        if (request.getTimestamp() != null) {
+            sorted.put("timestamp", request.getTimestamp());
+        }
+        if (request.getNonce() != null) {
+            sorted.put("nonce", request.getNonce());
+        }
         if (request.getAttach() != null) {
             sorted.putAll(request.getAttach());
         }

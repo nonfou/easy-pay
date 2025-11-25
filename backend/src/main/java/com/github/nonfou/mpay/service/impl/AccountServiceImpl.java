@@ -16,9 +16,12 @@ import com.github.nonfou.mpay.repository.PayAccountRepository;
 import com.github.nonfou.mpay.repository.PayChannelRepository;
 import com.github.nonfou.mpay.service.AccountService;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,15 +49,26 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public PageResponse<AccountSummary> listAccounts(Long pid, String platform, Integer state, Integer pattern, int page,
             int pageSize) {
-        List<PayAccountEntity> accounts = accountRepository.findByPid(pid).stream()
-                .filter(acc -> platform == null || acc.getPlatform().contains(platform))
-                .filter(acc -> state == null || acc.getState().equals(state))
-                .filter(acc -> pattern == null || acc.getPattern().equals(pattern))
+        // 使用数据库分页查询，避免内存分页
+        Page<PayAccountEntity> accountPage = accountRepository.findByConditions(
+                pid, platform, state, pattern, PageRequest.of(page - 1, pageSize));
+
+        List<PayAccountEntity> accounts = accountPage.getContent();
+        if (accounts.isEmpty()) {
+            return PageResponse.of(page, pageSize, 0, Collections.emptyList());
+        }
+
+        // 批量查询通道数量，避免 N+1 问题
+        List<Long> accountIds = accounts.stream()
+                .map(PayAccountEntity::getId)
                 .collect(Collectors.toList());
-        int from = Math.max((page - 1) * pageSize, 0);
-        int to = Math.min(from + pageSize, accounts.size());
-        List<PayAccountEntity> pageData = from >= accounts.size() ? List.of() : accounts.subList(from, to);
-        List<AccountSummary> summaries = pageData.stream()
+        Map<Long, Long> channelCounts = channelRepository.countChannelsByAccountIds(accountIds).stream()
+                .collect(Collectors.toMap(
+                        row -> (Long) row[0],
+                        row -> (Long) row[1]
+                ));
+
+        List<AccountSummary> summaries = accounts.stream()
                 .map(entity -> AccountSummary.builder()
                         .id(entity.getId())
                         .pid(entity.getPid())
@@ -62,10 +76,10 @@ public class AccountServiceImpl implements AccountService {
                         .account(entity.getAccount())
                         .state(entity.getState())
                         .pattern(entity.getPattern())
-                        .channelCount(channelRepository.findByAccountId(entity.getId()).size())
+                        .channelCount(channelCounts.getOrDefault(entity.getId(), 0L).intValue())
                         .build())
                 .collect(Collectors.toList());
-        return PageResponse.of(page, pageSize, accounts.size(), summaries);
+        return PageResponse.of(page, pageSize, accountPage.getTotalElements(), summaries);
     }
 
     @Override
