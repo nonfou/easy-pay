@@ -1,0 +1,29 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;MODE=MySQL
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+  flyway:
+    enabled: false
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+jwt:
+  secret: test-secret-key-for-unit-tests-must-be-at-least-256-bits-long-for-hs256
+  access-token-expiration: 3600000
+  refresh-token-expiration: 86400000
+
+logging:
+  level:
+    root: WARN
+    com.github.nonfou.mpay: DEBUG

@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pwsh -c:*)",
+      "mcp__sequential-thinking__sequentialthinking",
+      "Bash(pwsh:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

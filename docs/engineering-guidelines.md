@@ -21,7 +21,7 @@
 ## 3. 代码风格（后端）
 - Java 版本：21；使用 Spring Boot 3 + Maven。
 - 格式化：遵循 Google Style（可通过 Spotless/EditorConfig 统一）。
-- 目录结构：`com.mapy.<module>.<layer>`，按领域划分 package。
+- 目录结构：`com.github.nonfou.mpay.<layer>`，按领域划分 package。
 - Controller 只做入参校验、调用 Service；业务逻辑放在 Service/Domain 层。
 - DTO/VO 与 Entity 分离，借助 MapStruct 映射。
 - 所有公共响应使用统一包装（对应 `mpay-common` 的 `ApiResponse`）。

@@ -9,9 +9,9 @@
 ## 2. 公共组件
 | 包                     | 说明 |
 |------------------------|------|
-| `com.mapy.common.response` | `ApiResponse`（统一返回体）、`ErrorDetail`（字段错误信息）、`PageResponse`（分页封装）。 |
-| `com.mapy.common.error`    | `ErrorCode`（枚举）、`BusinessException`（运行时异常）。 |
-| `com.mapy.common.web`      | `GlobalExceptionHandler` 统一处理业务异常/参数校验错误/系统异常。 |
+| `com.github.nonfou.mpay.common.response` | `ApiResponse`（统一返回体）、`ErrorDetail`（字段错误信息）、`PageResponse`（分页封装）。 |
+| `com.github.nonfou.mpay.common.error`    | `ErrorCode`（枚举）、`BusinessException`（运行时异常）。 |
+| `com.github.nonfou.mpay.common.web`      | `GlobalExceptionHandler` 统一处理业务异常/参数校验错误/系统异常。 |
 
 ### ApiResponse 用法
 ```java
