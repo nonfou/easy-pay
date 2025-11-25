@@ -157,4 +157,8 @@ junit.xml
 *.local.yml
 *.local.yaml
 *.local.json
-.claude
+
+# -------------------- AI Tools --------------------
+# Claude Code
+.claude/
+.claude/settings.local.json

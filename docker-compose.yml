@@ -4,17 +4,16 @@ services:
     container_name: mpay-mysql
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_ROOT_PASSWORD: password
       MYSQL_DATABASE: mpay
+      MYSQL_USER: appuser
+      MYSQL_PASSWORD: userpass
       TZ: Asia/Shanghai
     ports:
       - "3307:3306"
     volumes:
-      - ./infra/mysql/data:/var/lib/mysql
-      - ./backend/src/main/resources/db:/docker-entrypoint-initdb.d
-    command:
-      - --lower_case_table_names=1
-      - --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+      - ./data/mysql:/var/lib/mysql
+      - ./init:/docker-entrypoint-initdb.d
     networks:
       - mpay-net
 
@@ -33,3 +32,4 @@ services:
 networks:
   mpay-net:
     driver: bridge
+
