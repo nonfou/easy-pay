@@ -34,7 +34,7 @@ public class OrderMatchServiceImpl implements OrderMatchService {
         List<OrderEntity> candidates = orderRepository.findByPidAndAidAndTypeAndState(
                 request.getPid(), request.getAid(), request.getPayway(), 0);
         OrderEntity match = candidates.stream()
-                .filter(o -> Double.compare(o.getReallyPrice(), request.getPrice().doubleValue()) == 0)
+                .filter(o -> o.getReallyPrice().compareTo(request.getPrice()) == 0)
                 .min(Comparator.comparing(OrderEntity::getCreateTime))
                 .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND, "no matching order"));
         match.setState(1);

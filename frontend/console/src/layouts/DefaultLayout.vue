@@ -61,8 +61,8 @@
         <div class="header-left">
           <el-button
             :icon="isCollapse ? 'Expand' : 'Fold'"
-            @click="isCollapse = !isCollapse"
             text
+            @click="isCollapse = !isCollapse"
           />
           <el-breadcrumb separator="/">
             <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
@@ -126,7 +126,7 @@ const handleCommand = async (command: string) => {
     await ElMessageBox.confirm('确定要退出登录吗？', '提示', {
       confirmButtonText: '确定',
       cancelButtonText: '取消',
-      type: 'warning',
+      type: 'warning'
     })
     authStore.logout()
     router.push('/login')

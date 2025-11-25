@@ -15,7 +15,11 @@ public enum ErrorCode {
     CONFLICT(409, "conflict"),
     TOO_MANY_REQUESTS(429, "too many requests"),
     SERVER_ERROR(500, "internal server error"),
-    SERVICE_UNAVAILABLE(503, "service unavailable");
+    SERVICE_UNAVAILABLE(503, "service unavailable"),
+
+    // 业务错误码 (1xxx)
+    LOGIN_FAILED(1001, "登录失败"),
+    ACCOUNT_DISABLED(1002, "账号已被禁用");
 
     private final int code;
     private final String message;

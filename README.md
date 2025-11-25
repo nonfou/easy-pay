@@ -1,85 +1,99 @@
-# mpay-spring
+# Easy-Pay
 
-`mpay-spring` 是 mpay 支付系统的 Java + Vue 重构工程。项目采用多模块 Maven + 前后端分离结构，并配套基础设施（MySQL、Redis、RabbitMQ）以便快速拉起本地环境。
+Easy-Pay (mpay) 是一个支付聚合系统，提供商户下单、收款码分配、支付监听、异步通知等能力。
+
+## 技术栈
+
+| 层级 | 技术 |
+|------|------|
+| 后端 | Spring Boot 3.3 + Java 21 |
+| 前端 | Vue 3 + TypeScript + Vite |
+| 数据库 | MySQL 9.5 + Redis 8.4 |
+| 认证 | Spring Security + JWT |
 
 ## 目录结构
+
 ```
-mpay-spring/
-├── backend/                # Spring Boot 多模块
-│   ├── mpay-common         # 通用 DTO/异常/工具包
-│   ├── mpay-gateway        # API Gateway / 统一入口
-│   ├── mpay-auth           # 鉴权与用户/密钥管理
-│   ├── mpay-payment        # 订单提交与收银台逻辑
-│   ├── mpay-merchant       # 商户账号、收款终端管理
-│   ├── mpay-plugin         # 插件市场与配置
-│   ├── mpay-monitor        # 监听、心跳、定时任务
-│   └── mpay-bff-console    # 后台 BFF（可选）
+easy-pay/
+├── backend/                    # Spring Boot 单体应用
+│   └── src/main/java/com/github/nonfou/mpay/
+│       ├── controller/         # REST 控制器
+│       ├── service/            # 业务逻辑层
+│       ├── repository/         # 数据访问层
+│       ├── entity/             # JPA 实体
+│       ├── dto/                # 数据传输对象
+│       ├── security/           # JWT 认证
+│       └── common/             # 统一响应/异常
 ├── frontend/
-│   ├── console             # Vue 3 后台管理 SPA（待初始化）
-│   └── cashier             # Vue 3 收银台 SPA（待初始化）
-├── docs/                   # 设计文档、API 规格等
-├── docker-compose.yml      # 基础设施编排：MySQL / Redis / RabbitMQ
-└── IMPLEMENTATION_PLAN.md  # 中文实施计划
+│   ├── console/                # Vue 3 管理后台 (Element Plus)
+│   └── cashier/                # Vue 3 收银台
+├── docs/                       # 设计文档
+│   ├── project-design.md       # 项目设计文档
+│   └── code-review-report.md   # 代码评审报告
+└── docker-compose.yml          # MySQL + Redis
 ```
 
-## 快速启动基础设施
+## 快速开始
+
+### 1. 启动基础设施
+
 ```bash
-cd mpay-spring
-# 首次可提前创建数据目录
-mkdir -p infra/mysql/data infra/mysql/init infra/redis/data
-# 启动 MySQL/Redis/RabbitMQ
-podman-compose up -d  # 或 docker compose up -d
+docker compose up -d
 ```
-> 默认端口：MySQL `3307`、Redis `6380`、RabbitMQ `5673`（控制台 `15673`）。凭证可在 `docker-compose.yml` 修改。
 
-## 下一步
-1. 根据 `IMPLEMENTATION_PLAN.md` 继续完成阶段 0 的数据库梳理与 CI 雏形。
-2. 在 `docs/` 目录记录数据库模型、API 草稿。
-3. 为 `backend` 各模块逐步添加 Spring Boot 代码骨架；在 `frontend` 目录创建 Vite + Vue 3 脚手架。
-## 模块速览
-- `mpay-common`：基础响应/异常/工具。
-- `mpay-gateway`：Spring Boot 入口，承载公共 API 与后台接口的网关层。
+默认端口：MySQL `3307`、Redis `6380`
 
-### 启动本地后端
+### 2. 启动后端
+
 ```bash
 cd backend
-mvn -pl mpay-gateway -am spring-boot:run
-# 或打包后 java -jar target/mpay-gateway-0.1.0-SNAPSHOT.jar
-```
-服务默认监听 `http://localhost:8080`，示例接口：`GET /api/_internal/ping` 返回统一 `ApiResponse`。
-```
-{
-  "code": 0,
-  "msg": "success",
-  "data": {
-    "service": "mpay-gateway",
-    "timestamp": "2025-11-23T15:30:00Z"
-  }
-}
+mvn spring-boot:run
 ```
 
-### 下一步
-- 在 `mpay-gateway` 引入安全配置（Spring Security + JWT）。
-- 根据 `docs/openapi.yaml` 增量实现公共下单与后台 API。
+服务监听 `http://localhost:8080`
 
-### 数据库初始化（Flyway）
-```bash
-cd backend
-mvn -pl mpay-payment -am flyway:migrate \
-  -Dflyway.url=jdbc:mysql://localhost:3307/mpay \
-  -Dflyway.user=root \
-  -Dflyway.password=rootpass
-```
-脚本位于 `backend/mpay-payment/src/main/resources/db/migration/`，包含 `user`、`pay_account`、`pay_channel`、`orders` 等表结构。
+### 3. 启动前端
 
-### Frontend Apps
+**管理后台**:
 ```bash
 cd frontend/console
-npm install
-npm run dev
-
-cd ../cashier
-npm install
-npm run dev
+npm install && npm run dev
 ```
-在 `console/.env` 设置 `VITE_API_BASE`（默认指向 `http://localhost:8080`），在 `cashier/.env` 设置 `VITE_PAYMENT_BASE`（默认 `http://localhost:8100`）。控制台默认加载 `/api/_internal/ping` 进行健康检查，收银台页面可输入订单号调用 `/api/public/orders/{orderId}`。
+
+**收银台**:
+```bash
+cd frontend/cashier
+npm install && npm run dev
+```
+
+## 核心功能
+
+- **商户下单**: `/api/public/orders/create` - 创建支付订单
+- **收银台**: `/api/cashier/orders/{orderId}` - 展示二维码，轮询支付状态
+- **订单管理**: `/api/console/orders` - 后台订单查询与管理
+- **账号管理**: `/api/console/accounts` - 收款账号与通道配置
+- **用户认证**: `/api/auth/login` - JWT 登录认证
+
+## 配置说明
+
+环境变量（可选，有默认值）:
+
+| 变量 | 默认值 | 说明 |
+|------|--------|------|
+| `DB_URL` | `jdbc:mysql://localhost:3307/mpay` | 数据库连接 |
+| `DB_USERNAME` | `root` | 数据库用户 |
+| `DB_PASSWORD` | `rootpass` | 数据库密码 |
+| `REDIS_HOST` | `localhost` | Redis 主机 |
+| `REDIS_PORT` | `6380` | Redis 端口 |
+| `JWT_SECRET` | (开发密钥) | JWT 签名密钥 |
+
+## 默认账号
+
+- 用户名: `admin`
+- 密码: `admin123`
+- PID: `1000`
+
+## 文档
+
+- [项目设计文档](docs/project-design.md) - 架构、数据库、模块说明
+- [代码评审报告](docs/code-review-report.md) - 已知问题与修复进度

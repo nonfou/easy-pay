@@ -11,7 +11,7 @@
       <div class="icon error-icon">!</div>
       <h2>加载失败</h2>
       <p class="message">{{ error }}</p>
-      <button @click="router.push('/')" class="btn primary">返回首页</button>
+      <button class="btn primary" @click="router.push('/')">返回首页</button>
     </div>
 
     <!-- 支付成功 -->
@@ -20,14 +20,16 @@
       <h2>支付成功</h2>
       <p class="amount">¥{{ order?.reallyPrice.toFixed(2) }}</p>
       <div class="info">
-        <p><span>商品</span><span>{{ order?.name }}</span></p>
-        <p><span>订单号</span><span class="mono">{{ order?.orderId }}</span></p>
+        <p>
+          <span>商品</span><span>{{ order?.name }}</span>
+        </p>
+        <p>
+          <span>订单号</span><span class="mono">{{ order?.orderId }}</span>
+        </p>
       </div>
       <div class="actions">
-        <button v-if="order?.returnUrl" @click="goBack" class="btn primary">
-          返回商户
-        </button>
-        <button @click="router.push('/')" class="btn secondary">返回首页</button>
+        <button v-if="order?.returnUrl" class="btn primary" @click="goBack">返回商户</button>
+        <button class="btn secondary" @click="router.push('/')">返回首页</button>
       </div>
     </div>
 
@@ -37,13 +39,13 @@
       <h2>支付失败</h2>
       <p class="message">订单支付未完成，请重试</p>
       <div class="info">
-        <p><span>订单号</span><span class="mono">{{ order?.orderId }}</span></p>
+        <p>
+          <span>订单号</span><span class="mono">{{ order?.orderId }}</span>
+        </p>
       </div>
       <div class="actions">
-        <button @click="retry" class="btn primary">重新支付</button>
-        <button v-if="order?.returnUrl" @click="goBack" class="btn secondary">
-          返回商户
-        </button>
+        <button class="btn primary" @click="retry">重新支付</button>
+        <button v-if="order?.returnUrl" class="btn secondary" @click="goBack">返回商户</button>
       </div>
     </div>
 
@@ -53,13 +55,13 @@
       <h2>订单已过期</h2>
       <p class="message">订单超时未支付，请重新下单</p>
       <div class="info">
-        <p><span>订单号</span><span class="mono">{{ order?.orderId }}</span></p>
+        <p>
+          <span>订单号</span><span class="mono">{{ order?.orderId }}</span>
+        </p>
       </div>
       <div class="actions">
-        <button v-if="order?.returnUrl" @click="goBack" class="btn primary">
-          返回商户
-        </button>
-        <button @click="router.push('/')" class="btn secondary">返回首页</button>
+        <button v-if="order?.returnUrl" class="btn primary" @click="goBack">返回商户</button>
+        <button class="btn secondary" @click="router.push('/')">返回首页</button>
       </div>
     </div>
 
@@ -69,7 +71,7 @@
       <h2>等待支付</h2>
       <p class="message">订单尚未支付</p>
       <div class="actions">
-        <button @click="goToPay" class="btn primary">继续支付</button>
+        <button class="btn primary" @click="goToPay">继续支付</button>
       </div>
     </div>
   </div>
@@ -186,7 +188,7 @@ onMounted(() => {
 }
 
 .success-icon {
-  background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+  background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
 }
 
 .failed-icon {
@@ -198,7 +200,7 @@ onMounted(() => {
 }
 
 .pending-icon {
-  background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+  background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
 }
 
 .error-icon {
@@ -217,7 +219,7 @@ h2 {
 .amount {
   font-size: 36px;
   font-weight: 600;
-  color: #4CAF50;
+  color: #4caf50;
   margin: 0 0 24px 0;
 }
 
@@ -300,7 +302,7 @@ h2 {
 
 /* 不同状态的容器样式 */
 .result-container.success h2 {
-  color: #4CAF50;
+  color: #4caf50;
 }
 
 .result-container.failed h2 {
@@ -312,6 +314,6 @@ h2 {
 }
 
 .result-container.pending h2 {
-  color: #2196F3;
+  color: #2196f3;
 }
 </style>

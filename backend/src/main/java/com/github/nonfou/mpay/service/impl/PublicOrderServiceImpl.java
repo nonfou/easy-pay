@@ -1,12 +1,5 @@
 package com.github.nonfou.mpay.service.impl;
 
-import com.github.nonfou.mpay.common.error.BusinessException;
-import com.github.nonfou.mpay.common.error.ErrorCode;
-import com.github.nonfou.mpay.dto.PublicCreateOrderDTO;
-import com.github.nonfou.mpay.dto.PublicCreateOrderResult;
-import com.github.nonfou.mpay.service.PublicOrderService;
-import org.springframework.stereotype.Service;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.nonfou.mpay.common.error.BusinessException;
@@ -19,6 +12,7 @@ import com.github.nonfou.mpay.repository.OrderRepository;
 import com.github.nonfou.mpay.service.ChannelSelector;
 import com.github.nonfou.mpay.service.MerchantSecretService;
 import com.github.nonfou.mpay.service.PriceAllocator;
+import com.github.nonfou.mpay.service.PublicOrderService;
 import com.github.nonfou.mpay.signature.SignatureService;
 import com.github.nonfou.mpay.support.OrderIdGenerator;
 import java.math.BigDecimal;
@@ -89,9 +83,9 @@ public class PublicOrderServiceImpl implements PublicOrderService {
         entity.setNotifyUrl(request.getNotifyUrl());
         entity.setReturnUrl(request.getReturnUrl());
         entity.setName(request.getName());
-        entity.setMoney(request.getMoney().doubleValue());
+        entity.setMoney(request.getMoney());
         BigDecimal allocated = priceAllocator.allocate(request.getMoney(), selection.aid(), selection.cid(), request.getType());
-        entity.setReallyPrice(allocated.doubleValue());
+        entity.setReallyPrice(allocated);
         entity.setClientIp(request.getClientIp());
         entity.setDevice(request.getDevice());
         entity.setParam(serializeAttach(request));
@@ -99,7 +93,7 @@ public class PublicOrderServiceImpl implements PublicOrderService {
         entity.setPatt(1);
         entity.setCreateTime(now);
         entity.setCloseTime(now.plusMinutes(3));
-        entity.setPayTime(now);
+        // payTime 不在创建时设置，仅在支付成功后设置
         entity.setAid(selection.aid());
         entity.setCid(selection.cid());
         entity.setPatt(selection.pattern());

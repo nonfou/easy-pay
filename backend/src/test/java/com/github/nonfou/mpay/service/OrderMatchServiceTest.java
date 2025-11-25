@@ -208,8 +208,8 @@ class OrderMatchServiceTest {
         order.setOutTradeNo("OUT" + orderId);
         order.setNotifyUrl("http://merchant.com/notify");
         order.setName("测试商品");
-        order.setMoney(100.0);
-        order.setReallyPrice(reallyPrice);
+        order.setMoney(new BigDecimal("100.00"));
+        order.setReallyPrice(new BigDecimal(String.valueOf(reallyPrice)));
         order.setState(0);
         order.setCreateTime(LocalDateTime.now());
         return order;

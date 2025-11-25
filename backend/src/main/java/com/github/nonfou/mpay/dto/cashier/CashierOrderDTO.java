@@ -1,5 +1,6 @@
 package com.github.nonfou.mpay.dto.cashier;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.Value;
@@ -13,8 +14,8 @@ public class CashierOrderDTO {
     String orderId;
     String type;
     String name;
-    Double money;
-    Double reallyPrice;
+    BigDecimal money;
+    BigDecimal reallyPrice;
     String qrcodeUrl;
     Integer state;
     LocalDateTime createTime;

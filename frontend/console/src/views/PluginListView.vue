@@ -3,7 +3,7 @@
     <!-- 操作栏 -->
     <el-card shadow="never">
       <div class="toolbar">
-        <el-button type="primary" @click="handleSync" :loading="syncing">
+        <el-button type="primary" :loading="syncing" @click="handleSync">
           <el-icon><Refresh /></el-icon>
           同步插件市场
         </el-button>
@@ -15,15 +15,8 @@
     </el-card>
 
     <!-- 插件列表 -->
-    <el-row :gutter="16" v-loading="loading">
-      <el-col
-        v-for="plugin in plugins"
-        :key="plugin.id"
-        :xs="24"
-        :sm="12"
-        :lg="8"
-        :xl="6"
-      >
+    <el-row v-loading="loading" :gutter="16">
+      <el-col v-for="plugin in plugins" :key="plugin.id" :xs="24" :sm="12" :lg="8" :xl="6">
         <el-card shadow="hover" class="plugin-card">
           <template #header>
             <div class="plugin-header">
@@ -31,10 +24,7 @@
                 <el-icon :size="24"><Connection /></el-icon>
                 <span class="plugin-name">{{ plugin.name }}</span>
               </div>
-              <el-tag
-                :type="plugin.state === 1 ? 'success' : 'info'"
-                size="small"
-              >
+              <el-tag :type="plugin.state === 1 ? 'success' : 'info'" size="small">
                 {{ plugin.state === 1 ? '已启用' : '未启用' }}
               </el-tag>
             </div>

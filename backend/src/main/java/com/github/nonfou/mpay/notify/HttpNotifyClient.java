@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
@@ -37,19 +38,9 @@ public class HttpNotifyClient implements NotifyClient {
     }
 
     @Override
+    @Async
     public void notifyMerchant(OrderEntity order) {
-        Map<String, Object> payload = new LinkedHashMap<>();
-        payload.put("trade_no", order.getOrderId());
-        payload.put("out_trade_no", order.getOutTradeNo());
-        payload.put("type", order.getType());
-        payload.put("money", order.getMoney());
-        payload.put("really_price", order.getReallyPrice());
-        payload.put("trade_status", "TRADE_SUCCESS");
-        merchantSecretService.getSecret(order.getPid()).ifPresent(secret -> {
-            String sign = SignatureUtils.md5(SignatureUtils.buildSignString(payload) + secret);
-            payload.put("sign", sign);
-            payload.put("sign_type", "MD5");
-        });
+        Map<String, Object> payload = buildPayload(order);
         int maxRetry = 3;
         for (int attempt = 1; attempt <= maxRetry; attempt++) {
             if (send(order, payload)) {
@@ -67,6 +58,28 @@ public class HttpNotifyClient implements NotifyClient {
         notifyLogService.recordFailure(order, errorMessage, maxRetry);
     }
 
+    @Override
+    public boolean sendNotification(OrderEntity order) {
+        Map<String, Object> payload = buildPayload(order);
+        return send(order, payload);
+    }
+
+    private Map<String, Object> buildPayload(OrderEntity order) {
+        Map<String, Object> payload = new LinkedHashMap<>();
+        payload.put("trade_no", order.getOrderId());
+        payload.put("out_trade_no", order.getOutTradeNo());
+        payload.put("type", order.getType());
+        payload.put("money", order.getMoney());
+        payload.put("really_price", order.getReallyPrice());
+        payload.put("trade_status", "TRADE_SUCCESS");
+        merchantSecretService.getSecret(order.getPid()).ifPresent(secret -> {
+            String sign = SignatureUtils.md5(SignatureUtils.buildSignString(payload) + secret);
+            payload.put("sign", sign);
+            payload.put("sign_type", "MD5");
+        });
+        return payload;
+    }
+
     private boolean send(OrderEntity order, Map<String, Object> payload) {
         try {
             RequestEntity<String> request = RequestEntity.post(new URI(order.getNotifyUrl()))
@@ -77,6 +90,9 @@ public class HttpNotifyClient implements NotifyClient {
             return response.getStatusCode().is2xxSuccessful();
         } catch (URISyntaxException | JsonProcessingException e) {
             log.error("notify merchant error", e);
+            return false;
+        } catch (Exception e) {
+            log.error("notify merchant request failed: {}", e.getMessage());
             return false;
         }
     }

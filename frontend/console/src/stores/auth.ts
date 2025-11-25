@@ -17,10 +17,19 @@ export const useAuthStore = defineStore(
 
     // 登录
     async function login(username: string, password: string) {
-      const response = await httpClient.post<{ data: TokenResponse }>('/api/auth/login', {
-        username,
-        password,
-      })
+      const response = await httpClient.post<{ code: number; msg: string; data: TokenResponse }>(
+        '/api/auth/login',
+        {
+          username,
+          password
+        }
+      )
+
+      // 检查业务错误码
+      if (response.data.code !== 0) {
+        throw new Error(response.data.msg || '登录失败')
+      }
+
       const tokenData = response.data.data
       accessToken.value = tokenData.accessToken
       refreshToken.value = tokenData.refreshToken
@@ -49,7 +58,7 @@ export const useAuthStore = defineStore(
 
       try {
         const response = await httpClient.post<{ data: TokenResponse }>('/api/auth/refresh', {
-          refreshToken: refreshToken.value,
+          refreshToken: refreshToken.value
         })
         const tokenData = response.data.data
         accessToken.value = tokenData.accessToken
@@ -92,12 +101,12 @@ export const useAuthStore = defineStore(
       logout,
       fetchCurrentUser,
       refreshAccessToken,
-      initialize,
+      initialize
     }
   },
   {
     persist: {
-      pick: ['accessToken', 'refreshToken'],
-    },
+      pick: ['accessToken', 'refreshToken']
+    }
   }
 )

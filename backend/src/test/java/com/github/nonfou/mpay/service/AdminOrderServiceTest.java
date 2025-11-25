@@ -13,6 +13,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -247,8 +248,8 @@ class AdminOrderServiceTest {
         order.setOutTradeNo("OUT123");
         order.setNotifyUrl("http://merchant.com/notify");
         order.setName("测试商品");
-        order.setMoney(100.0);
-        order.setReallyPrice(100.01);
+        order.setMoney(new BigDecimal("100.00"));
+        order.setReallyPrice(new BigDecimal("100.01"));
         order.setState(0); // 待支付
         order.setCreateTime(LocalDateTime.now());
         return order;

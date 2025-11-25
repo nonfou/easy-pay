@@ -1,5 +1,6 @@
 package com.github.nonfou.mpay.dto.order;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.Data;
@@ -17,8 +18,8 @@ public class OrderSummaryDTO {
     private Long pid;
     private String type;
     private String name;
-    private Double money;
-    private Double reallyPrice;
+    private BigDecimal money;
+    private BigDecimal reallyPrice;
     private Integer state;
     private String stateName;
     private LocalDateTime createTime;

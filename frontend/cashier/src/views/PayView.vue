@@ -38,22 +38,17 @@
           <span class="label">订单号</span>
           <span class="value order-id">{{ order.orderId }}</span>
         </div>
-        <div class="info-row" v-if="order.money !== order.reallyPrice">
+        <div v-if="order.money !== order.reallyPrice" class="info-row">
           <span class="label">原价</span>
           <span class="value original-price">¥{{ order.money.toFixed(2) }}</span>
         </div>
       </section>
 
       <!-- 二维码区域 -->
-      <section class="qrcode-section" v-if="isPending">
+      <section v-if="isPending" class="qrcode-section">
         <div class="qrcode-wrapper">
           <!-- 如果有后端提供的二维码图片 -->
-          <img
-            v-if="order.qrcodeUrl"
-            :src="qrcodeImageUrl"
-            alt="支付二维码"
-            class="qrcode-image"
-          />
+          <img v-if="order.qrcodeUrl" :src="qrcodeImageUrl" alt="支付二维码" class="qrcode-image" />
           <!-- 否则显示占位提示 -->
           <div v-else class="qrcode-placeholder">
             <p>请使用{{ paymentName }}扫码支付</p>
@@ -64,7 +59,7 @@
       </section>
 
       <!-- 倒计时 -->
-      <section class="countdown" v-if="isPending">
+      <section v-if="isPending" class="countdown">
         <div class="countdown-bar">
           <div class="progress" :style="{ width: progressPercent + '%' }"></div>
         </div>
@@ -74,14 +69,12 @@
       </section>
 
       <!-- 非待支付状态 -->
-      <section class="status-section" v-if="!isPending">
+      <section v-if="!isPending" class="status-section">
         <div class="status-icon" :class="statusClass">
           {{ statusIcon }}
         </div>
         <h3 class="status-text">{{ statusText }}</h3>
-        <button v-if="order.returnUrl" @click="goBack" class="return-btn">
-          返回商户
-        </button>
+        <button v-if="order.returnUrl" class="return-btn" @click="goBack">返回商户</button>
       </section>
     </div>
   </div>
@@ -91,7 +84,13 @@
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { getOrderDetail, getOrderState } from '../services'
-import { OrderState, PaymentTypeText, OrderStateText, type CashierOrder, type OrderStateType } from '../types'
+import {
+  OrderState,
+  PaymentTypeText,
+  OrderStateText,
+  type CashierOrder,
+  type OrderStateType
+} from '../types'
 
 const props = defineProps<{
   orderId: string
@@ -277,11 +276,14 @@ onUnmounted(() => {
 })
 
 // 监听订单 ID 变化
-watch(() => props.orderId, () => {
-  stopPolling()
-  stopCountdown()
-  loadOrder()
-})
+watch(
+  () => props.orderId,
+  () => {
+    stopPolling()
+    stopCountdown()
+    loadOrder()
+  }
+)
 </script>
 
 <style scoped>
@@ -566,7 +568,7 @@ watch(() => props.orderId, () => {
 }
 
 .status-icon.success {
-  background: #4CAF50;
+  background: #4caf50;
 }
 
 .status-icon.failed {

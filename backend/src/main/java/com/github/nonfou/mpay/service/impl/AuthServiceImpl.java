@@ -63,9 +63,12 @@ public class AuthServiceImpl implements AuthService {
                     .build();
 
         } catch (BadCredentialsException e) {
-            throw new BusinessException(ErrorCode.UNAUTHORIZED, "用户名或密码错误");
+            throw new BusinessException(ErrorCode.LOGIN_FAILED, "用户名或密码错误");
         } catch (DisabledException e) {
-            throw new BusinessException(ErrorCode.FORBIDDEN, "账号已被禁用");
+            throw new BusinessException(ErrorCode.ACCOUNT_DISABLED, "账号已被禁用");
+        } catch (Exception e) {
+            // 捕获其他认证异常（如 UsernameNotFoundException）
+            throw new BusinessException(ErrorCode.LOGIN_FAILED, "认证失败: " + e.getMessage());
         }
     }
 

@@ -23,11 +23,11 @@ public class IncrementalPriceAllocator implements PriceAllocator {
     public BigDecimal allocate(BigDecimal target, Long aid, Long cid, String type) {
         BigDecimal price = target.setScale(2, RoundingMode.HALF_UP);
         List<OrderEntity> activeOrders = orderRepository.findByAidAndCidAndTypeAndState(aid, cid, type, 0);
-        Set<Double> exists = new HashSet<>();
+        Set<BigDecimal> exists = new HashSet<>();
         for (OrderEntity order : activeOrders) {
             exists.add(order.getReallyPrice());
         }
-        while (exists.contains(price.doubleValue())) {
+        while (exists.contains(price)) {
             price = price.add(BigDecimal.valueOf(0.01));
         }
         return price;

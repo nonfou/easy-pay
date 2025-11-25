@@ -3,7 +3,9 @@
     <div class="logo">
       <svg viewBox="0 0 100 100" width="64" height="64">
         <circle cx="50" cy="50" r="45" fill="#4CAF50" />
-        <text x="50" y="62" text-anchor="middle" fill="white" font-size="32" font-weight="bold">$</text>
+        <text x="50" y="62" text-anchor="middle" fill="white" font-size="32" font-weight="bold">
+          $
+        </text>
       </svg>
     </div>
     <h1>Easy Pay</h1>
@@ -16,9 +18,7 @@
         placeholder="输入订单号查询"
         @keyup.enter="searchOrder"
       />
-      <button @click="searchOrder" :disabled="!orderId.trim()">
-        查询订单
-      </button>
+      <button :disabled="!orderId.trim()" @click="searchOrder">查询订单</button>
     </div>
 
     <div v-if="error" class="error">{{ error }}</div>
@@ -95,12 +95,14 @@ h1 {
   padding: 12px 24px;
   border: none;
   border-radius: 8px;
-  background: #4CAF50;
+  background: #4caf50;
   color: white;
   font-size: 16px;
   font-weight: 500;
   cursor: pointer;
-  transition: background 0.2s, transform 0.1s;
+  transition:
+    background 0.2s,
+    transform 0.1s;
 }
 
 .search-box button:hover:not(:disabled) {

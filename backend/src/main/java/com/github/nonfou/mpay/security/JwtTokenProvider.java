@@ -7,6 +7,7 @@ import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SecurityException;
+import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,8 +24,9 @@ import java.util.Date;
 public class JwtTokenProvider {
 
     private static final Logger log = LoggerFactory.getLogger(JwtTokenProvider.class);
+    private static final int MIN_SECRET_LENGTH = 32;
 
-    @Value("${mpay.jwt.secret:defaultSecretKeyForDevelopmentOnlyPleaseChangeInProduction}")
+    @Value("${mpay.jwt.secret:}")
     private String jwtSecret;
 
     @Value("${mpay.jwt.access-token-expiration:3600000}")
@@ -32,6 +34,21 @@ public class JwtTokenProvider {
 
     @Value("${mpay.jwt.refresh-token-expiration:604800000}")
     private long refreshTokenExpiration; // 默认 7 天
+
+    @PostConstruct
+    public void validateConfiguration() {
+        if (jwtSecret == null || jwtSecret.isBlank()) {
+            throw new IllegalStateException(
+                "JWT 密钥未配置！请设置环境变量 JWT_SECRET 或配置 mpay.jwt.secret");
+        }
+        if (jwtSecret.length() < MIN_SECRET_LENGTH) {
+            throw new IllegalStateException(
+                "JWT 密钥长度不足！最少需要 " + MIN_SECRET_LENGTH + " 个字符，当前: " + jwtSecret.length());
+        }
+        if (jwtSecret.contains("development") || jwtSecret.contains("default")) {
+            log.warn("⚠️  检测到使用开发环境 JWT 密钥，请在生产环境中更换安全密钥！");
+        }
+    }
 
     private SecretKey getSigningKey() {
         byte[] keyBytes = jwtSecret.getBytes(StandardCharsets.UTF_8);

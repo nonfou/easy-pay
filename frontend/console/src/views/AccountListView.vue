@@ -15,13 +15,9 @@
     </el-card>
 
     <!-- 账号列表 -->
-    <el-card shadow="never" v-loading="loading">
+    <el-card v-loading="loading" shadow="never">
       <el-collapse v-model="activeAccounts" accordion>
-        <el-collapse-item
-          v-for="account in accounts"
-          :key="account.id"
-          :name="account.id"
-        >
+        <el-collapse-item v-for="account in accounts" :key="account.id" :name="account.id">
           <template #title>
             <div class="account-header">
               <div class="account-info">
@@ -114,7 +110,11 @@
     </el-card>
 
     <!-- 新增/编辑账号弹窗 -->
-    <el-dialog v-model="accountDialogVisible" :title="isEdit ? '编辑账号' : '新增账号'" width="500px">
+    <el-dialog
+      v-model="accountDialogVisible"
+      :title="isEdit ? '编辑账号' : '新增账号'"
+      width="500px"
+    >
       <el-form ref="accountFormRef" :model="accountForm" :rules="accountRules" label-width="100px">
         <el-form-item label="支付平台" prop="platform">
           <el-select v-model="accountForm.platform" placeholder="请选择" style="width: 100%">
@@ -199,11 +199,11 @@ const accountForm = reactive({
   id: 0,
   platform: '',
   account: '',
-  pattern: 0,
+  pattern: 0
 })
 const accountRules: FormRules = {
   platform: [{ required: true, message: '请选择支付平台', trigger: 'change' }],
-  account: [{ required: true, message: '请输入账号', trigger: 'blur' }],
+  account: [{ required: true, message: '请输入账号', trigger: 'blur' }]
 }
 
 // 通道弹窗
@@ -212,24 +212,24 @@ const channelFormRef = ref<FormInstance>()
 const currentAccountId = ref(0)
 const channelForm = reactive({
   channel: '',
-  type: '',
+  type: ''
 })
 const channelRules: FormRules = {
-  channel: [{ required: true, message: '请输入终端编号', trigger: 'blur' }],
+  channel: [{ required: true, message: '请输入终端编号', trigger: 'blur' }]
 }
 
 // 上传弹窗
 const uploadDialogVisible = ref(false)
 const currentChannelId = ref(0)
 const uploadHeaders = computed(() => ({
-  Authorization: `Bearer ${authStore.accessToken}`,
+  Authorization: `Bearer ${authStore.accessToken}`
 }))
 
 const getPlatformName = (platform: string) => {
   const map: Record<string, string> = {
     wxpay: '微信支付',
     alipay: '支付宝',
-    bankcard: '银行卡',
+    bankcard: '银行卡'
   }
   return map[platform] || platform
 }
@@ -238,7 +238,7 @@ const getPlatformTagType = (platform: string) => {
   const map: Record<string, 'success' | 'primary' | 'warning'> = {
     wxpay: 'success',
     alipay: 'primary',
-    bankcard: 'warning',
+    bankcard: 'warning'
   }
   return map[platform] || 'info'
 }
@@ -289,7 +289,7 @@ const handleSaveAccount = async () => {
 const handleToggleState = async (account: AccountSummary) => {
   try {
     await httpClient.put(`/api/accounts/${account.id}/state`, {
-      state: account.state,
+      state: account.state
     })
     ElMessage.success('状态更新成功')
   } catch {

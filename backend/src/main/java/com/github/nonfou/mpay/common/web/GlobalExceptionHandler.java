@@ -25,7 +25,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Void>> handleBusinessException(BusinessException ex) {
         ErrorCode errorCode = ex.getErrorCode() == null ? ErrorCode.SERVER_ERROR : ex.getErrorCode();
         HttpStatus status = mapHttpStatus(errorCode);
-        return ResponseEntity.status(status).body(ApiResponse.failure(errorCode, null));
+        // 使用 BusinessException 的自定义消息，如果没有则使用 ErrorCode 的默认消息
+        String message = ex.getMessage() != null ? ex.getMessage() : errorCode.getMessage();
+        return ResponseEntity.status(status).body(ApiResponse.error(errorCode.getCode(), message));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -67,6 +69,10 @@ public class GlobalExceptionHandler {
     }
 
     private HttpStatus mapHttpStatus(ErrorCode errorCode) {
+        // 业务错误码 (1xxx) 返回 HTTP 200，让前端根据业务码处理
+        if (errorCode.getCode() >= 1000 && errorCode.getCode() < 2000) {
+            return HttpStatus.OK;
+        }
         return switch (errorCode) {
             case INVALID_ARGUMENT -> HttpStatus.BAD_REQUEST;
             case UNAUTHORIZED -> HttpStatus.UNAUTHORIZED;

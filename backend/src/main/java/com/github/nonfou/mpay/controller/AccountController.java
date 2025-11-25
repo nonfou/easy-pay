@@ -1,5 +1,7 @@
 package com.github.nonfou.mpay.controller;
 
+import com.github.nonfou.mpay.common.error.BusinessException;
+import com.github.nonfou.mpay.common.error.ErrorCode;
 import com.github.nonfou.mpay.common.response.ApiResponse;
 import com.github.nonfou.mpay.common.response.PageResponse;
 import com.github.nonfou.mpay.dto.account.AccountCreateRequest;
@@ -7,11 +9,13 @@ import com.github.nonfou.mpay.dto.account.AccountSummary;
 import com.github.nonfou.mpay.dto.account.AccountTransactionDTO;
 import com.github.nonfou.mpay.dto.account.ChannelCreateRequest;
 import com.github.nonfou.mpay.dto.account.ChannelSummary;
+import com.github.nonfou.mpay.security.SecurityUtils;
 import com.github.nonfou.mpay.service.AccountService;
 import jakarta.validation.Valid;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,21 +39,25 @@ public class AccountController {
 
     @GetMapping
     public ApiResponse<PageResponse<AccountSummary>> listAccounts(
-            @RequestParam Long pid,
+            @RequestParam(required = false) Long pid,
             @RequestParam(required = false) String platform,
             @RequestParam(required = false) Integer state,
             @RequestParam(required = false) Integer pattern,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int pageSize) {
+        // 租户隔离：普通用户只能查询自己的账号
+        Long accessiblePid = SecurityUtils.resolveAccessiblePid(pid);
         return ApiResponse.success(
-                accountService.listAccounts(pid, platform, state, pattern, page, pageSize));
+                accountService.listAccounts(accessiblePid, platform, state, pattern, page, pageSize));
     }
 
     @PostMapping
     public ApiResponse<AccountSummary> addAccount(
-            @RequestParam Long pid,
+            @RequestParam(required = false) Long pid,
             @RequestBody @Valid AccountCreateRequest request) {
-        return ApiResponse.success(accountService.createAccount(pid, request));
+        // 租户隔离：普通用户只能为自己创建账号
+        Long accessiblePid = SecurityUtils.resolveAccessiblePid(pid);
+        return ApiResponse.success(accountService.createAccount(accessiblePid, request));
     }
 
     @PutMapping("/{id}")
@@ -107,9 +115,13 @@ public class AccountController {
         LocalDateTime endTime;
 
         if (startDate != null && endDate != null) {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-            startTime = LocalDate.parse(startDate, formatter).atStartOfDay();
-            endTime = LocalDate.parse(endDate, formatter).plusDays(1).atStartOfDay();
+            try {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                startTime = LocalDate.parse(startDate, formatter).atStartOfDay();
+                endTime = LocalDate.parse(endDate, formatter).plusDays(1).atStartOfDay();
+            } catch (DateTimeParseException e) {
+                throw new BusinessException(ErrorCode.INVALID_ARGUMENT, "日期格式错误，请使用 yyyy-MM-dd 格式");
+            }
         } else {
             // 默认查询最近7天
             LocalDate today = LocalDate.now();

@@ -41,8 +41,8 @@
             type="primary"
             size="large"
             :loading="loading"
-            @click="handleLogin"
             style="width: 100%"
+            @click="handleLogin"
           >
             登 录
           </el-button>
@@ -50,9 +50,7 @@
       </el-form>
 
       <div class="login-tips">
-        <el-text type="info" size="small">
-          默认账号: admin / admin123
-        </el-text>
+        <el-text type="info" size="small"> 默认账号: admin / admin123 </el-text>
       </div>
     </el-card>
   </div>
@@ -74,12 +72,12 @@ const loading = ref(false)
 
 const form = reactive({
   username: '',
-  password: '',
+  password: ''
 })
 
 const rules: FormRules = {
   username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
-  password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
+  password: [{ required: true, message: '请输入密码', trigger: 'blur' }]
 }
 
 const handleLogin = async () => {
@@ -97,8 +95,15 @@ const handleLogin = async () => {
       const redirect = (route.query.redirect as string) || '/'
       router.push(redirect)
     } catch (error: unknown) {
-      const err = error as { response?: { data?: { message?: string } } }
-      ElMessage.error(err.response?.data?.message || '登录失败，请检查用户名和密码')
+      // 优先使用 Error.message (来自 auth store 的业务错误)
+      if (error instanceof Error) {
+        ElMessage.error(error.message)
+      } else {
+        const err = error as { response?: { data?: { msg?: string; message?: string } } }
+        ElMessage.error(
+          err.response?.data?.msg || err.response?.data?.message || '登录失败，请检查用户名和密码'
+        )
+      }
     } finally {
       loading.value = false
     }

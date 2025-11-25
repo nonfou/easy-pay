@@ -14,6 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -64,8 +65,8 @@ class CashierServiceTest {
         assertEquals(orderId, dto.getOrderId());
         assertEquals("wxpay", dto.getType());
         assertEquals("测试商品", dto.getName());
-        assertEquals(100.0, dto.getMoney());
-        assertEquals(100.01, dto.getReallyPrice());
+        assertEquals(new BigDecimal("100.00"), dto.getMoney());
+        assertEquals(new BigDecimal("100.01"), dto.getReallyPrice());
         assertEquals("http://example.com/qr.png", dto.getQrcodeUrl());
         assertEquals(0, dto.getState());
     }
@@ -224,8 +225,8 @@ class CashierServiceTest {
         order.setOutTradeNo("OUT123");
         order.setNotifyUrl("http://merchant.com/notify");
         order.setName("测试商品");
-        order.setMoney(100.0);
-        order.setReallyPrice(100.01);
+        order.setMoney(new BigDecimal("100.00"));
+        order.setReallyPrice(new BigDecimal("100.01"));
         order.setState(state);
         order.setCreateTime(LocalDateTime.now());
         order.setCloseTime(LocalDateTime.now().plusMinutes(3));

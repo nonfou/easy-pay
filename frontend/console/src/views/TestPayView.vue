@@ -124,14 +124,14 @@
         <el-form-item label="签名结果 (MD5)">
           <el-input :model-value="signResult" readonly placeholder="自动计算">
             <template #append>
-              <el-button @click="copySign" :disabled="!signResult">复制</el-button>
+              <el-button :disabled="!signResult" @click="copySign">复制</el-button>
             </template>
           </el-input>
         </el-form-item>
 
         <!-- 操作按钮 -->
         <el-form-item>
-          <el-button type="primary" @click="submitOrder" :loading="submitting">
+          <el-button type="primary" :loading="submitting" @click="submitOrder">
             提交订单
           </el-button>
           <el-button @click="resetForm">重置</el-button>
@@ -161,9 +161,7 @@
       </el-descriptions>
 
       <div class="result-actions">
-        <el-button type="primary" @click="openCashier">
-          打开收银台
-        </el-button>
+        <el-button type="primary" @click="openCashier"> 打开收银台 </el-button>
         <el-button @click="copyOrderId">复制订单号</el-button>
       </div>
     </el-card>
@@ -205,36 +203,24 @@ const form = ref<OrderForm>({
   type: 'wxpay',
   outTradeNo: '',
   name: '',
-  money: 1.00,
+  money: 1.0,
   notifyUrl: '',
   returnUrl: '',
   clientIp: '127.0.0.1',
-  device: 'pc',
+  device: 'pc'
 })
 
 const rules: FormRules = {
-  pid: [
-    { required: true, message: '请输入商户ID', trigger: 'blur' },
-  ],
-  secretKey: [
-    { required: true, message: '请输入商户密钥', trigger: 'blur' },
-  ],
-  type: [
-    { required: true, message: '请选择支付类型', trigger: 'change' },
-  ],
-  outTradeNo: [
-    { required: true, message: '请输入商户订单号', trigger: 'blur' },
-  ],
-  name: [
-    { required: true, message: '请输入商品名称', trigger: 'blur' },
-  ],
-  money: [
-    { required: true, message: '请输入支付金额', trigger: 'blur' },
-  ],
+  pid: [{ required: true, message: '请输入商户ID', trigger: 'blur' }],
+  secretKey: [{ required: true, message: '请输入商户密钥', trigger: 'blur' }],
+  type: [{ required: true, message: '请选择支付类型', trigger: 'change' }],
+  outTradeNo: [{ required: true, message: '请输入商户订单号', trigger: 'blur' }],
+  name: [{ required: true, message: '请输入商品名称', trigger: 'blur' }],
+  money: [{ required: true, message: '请输入支付金额', trigger: 'blur' }],
   notifyUrl: [
     { required: true, message: '请输入异步通知URL', trigger: 'blur' },
-    { type: 'url', message: '请输入有效的URL', trigger: 'blur' },
-  ],
+    { type: 'url', message: '请输入有效的URL', trigger: 'blur' }
+  ]
 }
 
 // 生成签名字符串
@@ -249,7 +235,7 @@ const signString = computed(() => {
     notify_url: form.value.notifyUrl,
     out_trade_no: form.value.outTradeNo,
     pid: form.value.pid,
-    type: form.value.type,
+    type: form.value.type
   }
 
   if (form.value.returnUrl) {
@@ -259,8 +245,8 @@ const signString = computed(() => {
   // 按字典序排列
   const sorted = Object.keys(params).sort()
   const pairs = sorted
-    .filter(key => params[key] != null && params[key] !== '')
-    .map(key => `${key}=${params[key]}`)
+    .filter((key) => params[key] != null && params[key] !== '')
+    .map((key) => `${key}=${params[key]}`)
 
   return pairs.join('&') + form.value.secretKey
 })
@@ -327,7 +313,7 @@ const submitOrder = async () => {
       clientIp: form.value.clientIp,
       device: form.value.device,
       sign: signResult.value,
-      signType: 'MD5',
+      signType: 'MD5'
     }
 
     const response = await httpClient.post('/api/public/orders', requestData)

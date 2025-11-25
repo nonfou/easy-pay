@@ -77,6 +77,9 @@ public class SecurityConfig {
                         .requestMatchers("/uploads/**").permitAll()
                         .requestMatchers("/error").permitAll()
 
+                        // 内部接口 - 仅限管理员访问 (生产环境应使用 IP 白名单或服务间认证)
+                        .requestMatchers("/api/internal/**").hasRole("ADMIN")
+
                         // 管理员接口
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/users/**").hasRole("ADMIN")

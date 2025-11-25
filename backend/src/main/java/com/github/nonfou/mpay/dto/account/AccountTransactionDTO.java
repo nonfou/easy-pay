@@ -1,5 +1,6 @@
 package com.github.nonfou.mpay.dto.account;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.Data;
@@ -24,10 +25,10 @@ public class AccountTransactionDTO {
     private String name;
 
     /** 订单金额 */
-    private Double money;
+    private BigDecimal money;
 
     /** 实付金额 */
-    private Double reallyPrice;
+    private BigDecimal reallyPrice;
 
     /** 订单状态 */
     private Integer state;

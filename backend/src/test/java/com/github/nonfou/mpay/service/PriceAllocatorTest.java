@@ -59,7 +59,7 @@ class PriceAllocatorTest {
         List<OrderEntity> existingOrders = new ArrayList<>();
 
         OrderEntity order1 = new OrderEntity();
-        order1.setReallyPrice(100.00);
+        order1.setReallyPrice(new BigDecimal("100.00"));
         existingOrders.add(order1);
 
         when(orderRepository.findByAidAndCidAndTypeAndState(anyLong(), anyLong(), anyString(), eq(0)))
@@ -80,15 +80,15 @@ class PriceAllocatorTest {
         List<OrderEntity> existingOrders = new ArrayList<>();
 
         OrderEntity order1 = new OrderEntity();
-        order1.setReallyPrice(100.00);
+        order1.setReallyPrice(new BigDecimal("100.00"));
         existingOrders.add(order1);
 
         OrderEntity order2 = new OrderEntity();
-        order2.setReallyPrice(100.01);
+        order2.setReallyPrice(new BigDecimal("100.01"));
         existingOrders.add(order2);
 
         OrderEntity order3 = new OrderEntity();
-        order3.setReallyPrice(100.02);
+        order3.setReallyPrice(new BigDecimal("100.02"));
         existingOrders.add(order3);
 
         when(orderRepository.findByAidAndCidAndTypeAndState(anyLong(), anyLong(), anyString(), eq(0)))
@@ -126,7 +126,7 @@ class PriceAllocatorTest {
         // 账号1有100.00的订单
         List<OrderEntity> account1Orders = new ArrayList<>();
         OrderEntity order1 = new OrderEntity();
-        order1.setReallyPrice(100.00);
+        order1.setReallyPrice(new BigDecimal("100.00"));
         account1Orders.add(order1);
 
         when(orderRepository.findByAidAndCidAndTypeAndState(eq(1L), anyLong(), anyString(), eq(0)))
