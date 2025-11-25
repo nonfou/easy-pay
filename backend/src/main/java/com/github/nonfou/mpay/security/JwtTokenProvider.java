@@ -113,15 +113,15 @@ public class JwtTokenProvider {
             parseToken(token);
             return true;
         } catch (SecurityException e) {
-            log.error("Invalid JWT signature: {}", e.getMessage());
+            log.error("JWT 签名无效: {}", e.getMessage());
         } catch (MalformedJwtException e) {
-            log.error("Invalid JWT token: {}", e.getMessage());
+            log.error("JWT 格式错误: {}", e.getMessage());
         } catch (ExpiredJwtException e) {
-            log.error("JWT token is expired: {}", e.getMessage());
+            log.error("JWT 已过期: {}", e.getMessage());
         } catch (UnsupportedJwtException e) {
-            log.error("JWT token is unsupported: {}", e.getMessage());
+            log.error("不支持的 JWT: {}", e.getMessage());
         } catch (IllegalArgumentException e) {
-            log.error("JWT claims string is empty: {}", e.getMessage());
+            log.error("JWT claims 为空: {}", e.getMessage());
         }
         return false;
     }
@@ -140,6 +140,7 @@ public class JwtTokenProvider {
 
             return remainingTime < (totalDuration * 0.1);
         } catch (Exception e) {
+            log.debug("检查 Token 过期状态失败: {}", e.getMessage());
             return false;
         }
     }

@@ -36,12 +36,13 @@ public class OrderMatchServiceImpl implements OrderMatchService {
         OrderEntity match = candidates.stream()
                 .filter(o -> o.getReallyPrice().compareTo(request.getPrice()) == 0)
                 .min(Comparator.comparing(OrderEntity::getCreateTime))
-                .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND, "no matching order"));
+                .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND, "未找到匹配的订单"));
         match.setState(1);
         match.setPayTime(LocalDateTime.now());
         match.setPlatformOrder(request.getPlatformOrder());
         orderRepository.save(match);
-        log.info("order {} matched by record {}", match.getOrderId(), request);
+        log.info("订单匹配成功: orderId={}, price={}, platformOrder={}",
+                match.getOrderId(), request.getPrice(), request.getPlatformOrder());
         notifyClient.notifyMerchant(match);
     }
 }

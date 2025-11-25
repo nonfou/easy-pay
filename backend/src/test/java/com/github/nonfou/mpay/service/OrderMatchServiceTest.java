@@ -84,7 +84,7 @@ class OrderMatchServiceTest {
         BusinessException exception = assertThrows(BusinessException.class,
                 () -> orderMatchService.matchPayment(request));
 
-        assertTrue(exception.getMessage().contains("no matching order"));
+        assertTrue(exception.getMessage().contains("未找到匹配的订单"));
         verify(orderRepository, never()).save(any());
         verify(notifyClient, never()).notifyMerchant(any());
     }

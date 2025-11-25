@@ -157,3 +157,4 @@ junit.xml
 *.local.yml
 *.local.yaml
 *.local.json
+.claude

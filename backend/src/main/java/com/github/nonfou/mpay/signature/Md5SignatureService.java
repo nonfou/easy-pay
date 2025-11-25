@@ -16,7 +16,7 @@ public class Md5SignatureService implements SignatureService {
         String expected = SignatureUtils.md5(signString);
         boolean match = expected.equalsIgnoreCase(request.getSign());
         if (!match) {
-            log.warn("signature mismatch for pid {}, expected {}", request.getPid(), expected);
+            log.warn("签名验证失败: pid={}, expected={}", request.getPid(), expected);
         }
         return match;
     }

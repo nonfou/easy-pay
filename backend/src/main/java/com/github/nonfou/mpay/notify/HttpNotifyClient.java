@@ -53,8 +53,8 @@ public class HttpNotifyClient implements NotifyClient {
                 break;
             }
         }
-        String errorMessage = "notify merchant failed after retries";
-        log.error("{} order {}", errorMessage, order.getOrderId());
+        String errorMessage = "通知商户失败，已达最大重试次数";
+        log.error("{}: orderId={}", errorMessage, order.getOrderId());
         notifyLogService.recordFailure(order, errorMessage, maxRetry);
     }
 
@@ -86,13 +86,13 @@ public class HttpNotifyClient implements NotifyClient {
                     .header("Content-Type", "application/json")
                     .body(objectMapper.writeValueAsString(payload));
             ResponseEntity<String> response = restTemplate.exchange(request, String.class);
-            log.info("notify {} result {}", order.getNotifyUrl(), response.getStatusCode());
+            log.info("通知商户: url={}, status={}", order.getNotifyUrl(), response.getStatusCode());
             return response.getStatusCode().is2xxSuccessful();
         } catch (URISyntaxException | JsonProcessingException e) {
-            log.error("notify merchant error", e);
+            log.error("通知商户构造请求失败: orderId={}", order.getOrderId(), e);
             return false;
         } catch (Exception e) {
-            log.error("notify merchant request failed: {}", e.getMessage());
+            log.error("通知商户请求异常: orderId={}, error={}", order.getOrderId(), e.getMessage());
             return false;
         }
     }

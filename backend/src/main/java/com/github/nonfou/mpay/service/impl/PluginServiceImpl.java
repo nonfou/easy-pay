@@ -192,6 +192,7 @@ public class PluginServiceImpl implements PluginService {
         try {
             return objectMapper.writeValueAsString(query == null ? Collections.emptyMap() : query);
         } catch (JsonProcessingException e) {
+            log.warn("序列化 query 参数失败，使用空对象: {}", e.getMessage());
             return "{}";
         }
     }
@@ -201,6 +202,7 @@ public class PluginServiceImpl implements PluginService {
             return json == null ? Collections.emptyMap()
                     : objectMapper.readValue(json, new TypeReference<Map<String, Object>>() {});
         } catch (Exception e) {
+            log.warn("反序列化 query 参数失败，使用空对象: json={}, error={}", json, e.getMessage());
             return Collections.emptyMap();
         }
     }

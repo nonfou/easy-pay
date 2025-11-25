@@ -25,15 +25,15 @@ public class PaymentMatchServiceImpl implements PaymentMatchService {
 
     @Override
     public void handlePaymentRecord(PaymentRecordDTO record) {
-        log.info("receive payment record: {}", record);
+        log.info("收到支付记录: {}", record);
         if (record.getPlatformOrder() != null &&
                 Boolean.TRUE.equals(redisTemplate.hasKey(dedupKey(record.getPlatformOrder())))) {
-            log.info("skip duplicate record {}", record.getPlatformOrder());
+            log.info("跳过重复记录: platformOrder={}", record.getPlatformOrder());
             return;
         }
         boolean success = notifyPaymentService(record);
         if (!success) {
-            throw new BusinessException(ErrorCode.SERVER_ERROR, "payment match failed");
+            throw new BusinessException(ErrorCode.SERVER_ERROR, "支付匹配失败");
         }
         if (record.getPlatformOrder() != null) {
             redisTemplate.opsForValue().set(dedupKey(record.getPlatformOrder()), "1");
@@ -54,14 +54,14 @@ public class PaymentMatchServiceImpl implements PaymentMatchService {
                 .bodyValue(payload)
                 .retrieve()
                 .onStatus(status -> !status.is2xxSuccessful(), response -> {
-                    log.error("payment match response {}", response.statusCode());
+                    log.error("支付匹配响应异常: status={}", response.statusCode());
                     return response.createException();
                 })
                 .bodyToMono(Void.class)
                 .block();
             return true;
         } catch (Exception e) {
-            log.error("payment match failed", e);
+            log.error("支付匹配失败: pid={}, price={}", record.getPid(), record.getPrice(), e);
             return false;
         }
     }

@@ -3,13 +3,13 @@
 > **评审日期**: 2025-11-25
 > **项目版本**: 0.2.0-SNAPSHOT
 > **评审范围**: 全代码库 (后端 + 前端)
-> **最后更新**: 2025-11-25 (已修复 6 个 P0 问题，新增异常/日志规范化待办)
+> **最后更新**: 2025-11-25 (已修复 8 个 P0/P1 问题，包含异常/日志规范化)
 
 ---
 
 ## 🎯 修复进度追踪
 
-### ✅ 已修复问题 (6/15 CRITICAL+HIGH)
+### ✅ 已修复问题 (8/15 CRITICAL+HIGH)
 
 | # | 问题 | 类型 | 状态 | 修复说明 |
 |---|------|------|------|----------|
@@ -19,19 +19,19 @@
 | 4 | 订单租户隔离 | 安全 | ✅ 已修复 | 新增 SecurityUtils，Controller 层强制隔离 |
 | 5 | payTime 设置错误 | 代码 | ✅ 已修复 | 删除创建订单时错误设置 payTime 的代码 |
 | 6 | 重复 import 语句 | 代码 | ✅ 已修复 | 清理 PublicOrderServiceImpl 重复导入 |
+| 7 | 异常处理规范化 | 代码 | ✅ 已修复 | GlobalExceptionHandler 添加日志，修复静默吞没 |
+| 8 | 日志记录规范化 | 代码 | ✅ 已修复 | 统一中文日志格式，添加结构化日志参数 |
 
 ### 🔄 待修复问题 (P1 - 建议尽快处理)
 
 | # | 问题 | 类型 | 状态 |
 |---|------|------|------|
-| 7 | 签名验证可被绕过 | 安全 | ⏳ 待修复 |
-| 8 | N+1 查询问题 | 性能 | ⏳ 待修复 |
-| 9 | 内存分页问题 | 性能 | ⏳ 待修复 |
-| 10 | 添加 API 限流 | 安全 | ⏳ 待修复 |
-| 11 | DTO 输入验证 | 代码 | ⏳ 待修复 |
-| 12 | 补充核心模块测试 | 测试 | ⏳ 待修复 |
-| 13 | 异常处理规范化 | 代码 | ⏳ 待修复 |
-| 14 | 日志记录规范化 | 代码 | ⏳ 待修复 |
+| 9 | 签名验证可被绕过 | 安全 | ⏳ 待修复 |
+| 10 | N+1 查询问题 | 性能 | ⏳ 待修复 |
+| 11 | 内存分页问题 | 性能 | ⏳ 待修复 |
+| 12 | 添加 API 限流 | 安全 | ⏳ 待修复 |
+| 13 | DTO 输入验证 | 代码 | ⏳ 待修复 |
+| 14 | 补充核心模块测试 | 测试 | ⏳ 待修复 |
 
 ### 📁 修复涉及的文件
 
@@ -46,17 +46,22 @@
 - `AccountTransactionDTO.java` - 同步修改类型
 - `PublicOrderServiceImpl.java` - 移除 doubleValue()，删除错误 payTime 设置，清理重复 import
 - `IncrementalPriceAllocator.java` - 使用 BigDecimal 集合
-- `OrderMatchServiceImpl.java` - 使用 compareTo() 比较
+- `OrderMatchServiceImpl.java` - 使用 compareTo() 比较，日志规范化
 - `SecurityConfig.java` - 添加内部 API 权限控制
 - `application.yml` - 使用环境变量配置
-- `JwtTokenProvider.java` - 添加密钥校验
+- `JwtTokenProvider.java` - 添加密钥校验，日志中文化
 - `ConsoleOrderController.java` - 添加租户隔离
 - `AccountController.java` - 添加租户隔离
+- `GlobalExceptionHandler.java` - 添加日志记录，记录业务异常/验证失败/未知异常
+- `PluginServiceImpl.java` - 修复 JSON 序列化异常静默吞没，添加警告日志
+- `HttpNotifyClient.java` - 日志中文化，添加结构化日志参数
+- `PaymentMatchServiceImpl.java` - 日志中文化，添加异常堆栈信息
+- `Md5SignatureService.java` - 日志中文化
 
 **测试文件修复**:
 - `AdminOrderServiceTest.java`
 - `CashierServiceTest.java`
-- `OrderMatchServiceTest.java`
+- `OrderMatchServiceTest.java` - 更新异常消息断言
 - `PriceAllocatorTest.java`
 
 ---
@@ -459,55 +464,60 @@ public class MatchRequest {
 | 13 | 验证消息使用英文 | 自定义中文消息 |
 | 14 | 分页后内存过滤 | 数据库过滤 |
 | 15 | 缺少 API 文档注解 | 添加 Swagger |
-| 16 | 日志格式不统一 | 使用结构化日志 |
-| 17 | 异常处理不规范 | 统一异常处理，返回详细错误信息 |
-| 18 | 异常静默吞没 | 捕获异常后记录日志并抛出 |
+| ~~16~~ | ~~日志格式不统一~~ | ✅ **已修复** - 统一使用中文结构化日志 |
+| ~~17~~ | ~~异常处理不规范~~ | ✅ **已修复** - 添加日志记录，返回详细错误信息 |
+| ~~18~~ | ~~异常静默吞没~~ | ✅ **已修复** - 修复多处静默吞没问题 |
 
 ---
 
-### 新增问题: 异常处理与日志规范化
+### ✅ 已修复: 异常处理与日志规范化
 
-#### 17. 异常处理不规范
+#### 17. 异常处理规范化 (已修复)
 
-**文件**: `backend/src/main/java/com/github/nonfou/mpay/common/web/GlobalExceptionHandler.java`
-**问题**: 全局异常处理器未正确返回 `BusinessException` 的自定义错误消息
+**修复内容**:
 
-**已修复代码**:
+1. **GlobalExceptionHandler 添加日志记录**:
 ```java
 @ExceptionHandler(BusinessException.class)
 public ResponseEntity<ApiResponse<Void>> handleBusinessException(BusinessException ex) {
     ErrorCode errorCode = ex.getErrorCode() == null ? ErrorCode.SERVER_ERROR : ex.getErrorCode();
-    HttpStatus status = mapHttpStatus(errorCode);
-    // 使用 BusinessException 的自定义消息，如果没有则使用 ErrorCode 的默认消息
     String message = ex.getMessage() != null ? ex.getMessage() : errorCode.getMessage();
+    // 业务异常记录 warn 级别日志，包含错误码和消息
+    log.warn("业务异常: code={}, message={}", errorCode.getCode(), message);
+    HttpStatus status = mapHttpStatus(errorCode);
     return ResponseEntity.status(status).body(ApiResponse.error(errorCode.getCode(), message));
 }
+
+@ExceptionHandler(Exception.class)
+public ResponseEntity<ApiResponse<Void>> handleUnexpected(Exception ex) {
+    // 未知异常记录 error 级别日志，包含完整堆栈信息
+    log.error("未预期的异常: {}", ex.getMessage(), ex);
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body(ApiResponse.failure(ErrorCode.SERVER_ERROR));
+}
 ```
+
+2. **修复静默吞没异常**:
+- `PluginServiceImpl`: JSON 序列化/反序列化异常添加 warn 日志
+- `JwtTokenProvider.isTokenExpiringSoon`: 添加 debug 日志
 
 ---
 
-#### 18. 异常静默吞没
+#### 18. 日志记录规范化 (已修复)
 
-**文件**: `backend/src/main/java/com/github/nonfou/mpay/service/impl/AuthServiceImpl.java`
-**行号**: 65-72
-**问题**: 只捕获特定异常类型，其他异常被静默吞没导致调试困难
+**修复内容**:
 
-**已修复代码**:
-```java
-} catch (BadCredentialsException e) {
-    throw new BusinessException(ErrorCode.UNAUTHORIZED, "用户名或密码错误");
-} catch (DisabledException e) {
-    throw new BusinessException(ErrorCode.FORBIDDEN, "账号已被禁用");
-} catch (Exception e) {
-    // 捕获其他认证异常（如 UsernameNotFoundException）
-    throw new BusinessException(ErrorCode.UNAUTHORIZED, "认证失败: " + e.getMessage());
-}
-```
+1. **统一使用中文日志消息**，便于运维人员查看
+2. **添加结构化日志参数**，使用 `key=value` 格式便于日志分析
+3. **修复的文件列表**:
 
-**待办**: 全局检查类似的异常处理问题:
-- 检查所有 `catch` 块，确保异常信息被正确记录或传递
-- 添加结构化日志记录
-- 统一错误响应格式
+| 文件 | 修复前 | 修复后 |
+|------|--------|--------|
+| JwtTokenProvider | `Invalid JWT signature` | `JWT 签名无效` |
+| OrderMatchServiceImpl | `order {} matched by record` | `订单匹配成功: orderId={}, price={}` |
+| PaymentMatchServiceImpl | `receive payment record` | `收到支付记录` |
+| HttpNotifyClient | `notify merchant failed` | `通知商户失败，已达最大重试次数` |
+| Md5SignatureService | `signature mismatch` | `签名验证失败` |
 
 ---
 

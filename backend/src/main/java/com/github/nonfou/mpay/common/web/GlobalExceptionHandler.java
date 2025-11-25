@@ -8,6 +8,8 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -21,12 +23,15 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ApiResponse<Void>> handleBusinessException(BusinessException ex) {
         ErrorCode errorCode = ex.getErrorCode() == null ? ErrorCode.SERVER_ERROR : ex.getErrorCode();
-        HttpStatus status = mapHttpStatus(errorCode);
-        // 使用 BusinessException 的自定义消息，如果没有则使用 ErrorCode 的默认消息
         String message = ex.getMessage() != null ? ex.getMessage() : errorCode.getMessage();
+        // 业务异常记录 warn 级别日志，包含错误码和消息
+        log.warn("业务异常: code={}, message={}", errorCode.getCode(), message);
+        HttpStatus status = mapHttpStatus(errorCode);
         return ResponseEntity.status(status).body(ApiResponse.error(errorCode.getCode(), message));
     }
 
@@ -36,6 +41,7 @@ public class GlobalExceptionHandler {
         List<ErrorDetail> details = ex.getBindingResult().getFieldErrors().stream()
                 .map(this::toErrorDetail)
                 .collect(Collectors.toList());
+        log.warn("参数验证失败: {}", details);
         return ResponseEntity.badRequest().body(ApiResponse.failure(ErrorCode.INVALID_ARGUMENT, details));
     }
 
@@ -45,11 +51,14 @@ public class GlobalExceptionHandler {
         List<ErrorDetail> details = ex.getConstraintViolations().stream()
                 .map(this::toErrorDetail)
                 .collect(Collectors.toList());
+        log.warn("约束验证失败: {}", details);
         return ResponseEntity.badRequest().body(ApiResponse.failure(ErrorCode.INVALID_ARGUMENT, details));
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleUnexpected(Exception ex) {
+        // 未知异常记录 error 级别日志，包含完整堆栈信息
+        log.error("未预期的异常: {}", ex.getMessage(), ex);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.failure(ErrorCode.SERVER_ERROR));
     }
