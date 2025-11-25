@@ -205,7 +205,7 @@ GET  /api/auth/me        # 获取当前用户
 
 1. **~~包名不一致~~**: ✅ 已统一为 `com.github.nonfou.mpay`
 2. **~~PluginServiceImpl unchecked 警告~~**: ✅ 已添加 TypeReference 泛型类型
-3. **Git 变更未提交**: 大量新增代码和删除的旧模块代码需要提交
+3. **~~Git 变更未提交~~**: ✅ 已提交 (commit: ea0638b)
 
 ### 代码优化建议
 
