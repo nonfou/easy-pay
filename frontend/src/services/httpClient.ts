@@ -1,6 +1,4 @@
 import axios from 'axios'
-import type { AxiosError, InternalAxiosRequestConfig } from 'axios'
-import { useAuthStore } from '../stores/auth'
 
 // 开发环境使用空字符串让 Vite 代理生效，生产环境使用配置的 API 地址
 const baseURL = import.meta.env.VITE_API_BASE || ''
@@ -13,55 +11,11 @@ export const httpClient = axios.create({
   }
 })
 
-// 请求拦截器 - 添加 Token
-httpClient.interceptors.request.use(
-  (config: InternalAxiosRequestConfig) => {
-    const authStore = useAuthStore()
-    if (authStore.accessToken) {
-      config.headers.Authorization = `Bearer ${authStore.accessToken}`
-    }
-    return config
-  },
-  (error) => {
-    return Promise.reject(error)
-  }
-)
-
-// 响应拦截器 - 处理错误和 Token 刷新
+// 响应拦截器 - 处理错误
 httpClient.interceptors.response.use(
   (response) => response,
-  async (error: AxiosError) => {
-    const authStore = useAuthStore()
-    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean }
-
-    // 401 错误处理
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true
-
-      // 尝试刷新 Token
-      if (authStore.refreshToken) {
-        try {
-          const newToken = await authStore.refreshAccessToken()
-          originalRequest.headers.Authorization = `Bearer ${newToken}`
-          return httpClient(originalRequest)
-        } catch {
-          // 刷新失败，跳转登录页
-          authStore.logout()
-          window.location.href = '/login'
-          return Promise.reject(error)
-        }
-      } else {
-        // 没有 refresh token，跳转登录页
-        authStore.logout()
-        window.location.href = '/login'
-      }
-    }
-
-    // 403 错误 - 权限不足
-    if (error.response?.status === 403) {
-      console.error('权限不足')
-    }
-
+  (error) => {
+    console.error('API 请求错误:', error.response?.data || error.message)
     return Promise.reject(error)
   }
 )

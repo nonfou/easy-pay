@@ -1,36 +1,22 @@
 spring:
   application:
     name: mpay
-  datasource:
-    url: ${DB_URL:jdbc:mysql://localhost:3307/mpay?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai}
-    username: ${DB_USERNAME:root}
-    password: ${DB_PASSWORD:password}
-    driver-class-name: com.mysql.cj.jdbc.Driver
-  jpa:
-    hibernate:
-      ddl-auto: none
-    show-sql: ${JPA_SHOW_SQL:false}
-    properties:
-      hibernate:
-        format_sql: true
-  data:
-    redis:
-      host: ${REDIS_HOST:localhost}
-      port: ${REDIS_PORT:6380}
-  flyway:
-    enabled: true
-    locations: classpath:db
-    baseline-on-migrate: true
-  servlet:
-    multipart:
-      max-file-size: 5MB
-      max-request-size: 10MB
-  web:
-    resources:
-      static-locations: classpath:/static/,file:./uploads/
 
 server:
   port: 8080
+  servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+
+logging:
+  charset:
+    console: UTF-8
+    file: UTF-8
+  level:
+    com.github.nonfou.mpay: DEBUG
+    org.springframework.web: INFO
 
 management:
   endpoints:
@@ -38,26 +24,26 @@ management:
       exposure:
         include: health,info
 
-logging:
-  level:
-    com.github.nonfou.mpay: DEBUG
-    org.springframework.web: INFO
-
-# 文件上传配置
 mpay:
-  storage:
-    upload-dir: ./uploads
-    base-url: /uploads
-  jwt:
-    # 生产环境请使用安全的随机密钥 (至少 256 位)
-    secret: ${JWT_SECRET:mpay-jwt-secret-key-for-development-only-please-change-in-production}
-    # Access Token 有效期 (毫秒), 默认 1 小时
-    access-token-expiration: ${JWT_ACCESS_EXPIRATION:3600000}
-    # Refresh Token 有效期 (毫秒), 默认 7 天
-    refresh-token-expiration: ${JWT_REFRESH_EXPIRATION:604800000}
-  order:
-    # 订单过期时间 (分钟), 默认 30 分钟
-    expire-minutes: ${ORDER_EXPIRE_MINUTES:30}
-  notify:
-    # 通知最大重试次数, 默认 8 次
-    max-retries: ${NOTIFY_MAX_RETRIES:8}
+  # 支付宝配置
+  alipay:
+    app-id: ${ALIPAY_APP_ID:}
+    private-key: ${ALIPAY_PRIVATE_KEY:}
+    public-key: ${ALIPAY_PUBLIC_KEY:}
+    notify-url: ${ALIPAY_NOTIFY_URL:http://localhost:8080/api/payment/alipay/callback}
+    return-url: ${ALIPAY_RETURN_URL:http://localhost:5173/result}
+    sign-type: RSA2
+    charset: utf-8
+    # 正式环境: https://openapi.alipay.com/gateway.do
+    # 沙箱环境: https://openapi-sandbox.dl.alipaydev.com/gateway.do
+    gateway-url: ${ALIPAY_GATEWAY_URL:https://openapi-sandbox.dl.alipaydev.com/gateway.do}
+
+  # 微信支付配置
+  wxpay:
+    app-id: ${WXPAY_APP_ID:}
+    mch-id: ${WXPAY_MCH_ID:}
+    mch-key: ${WXPAY_MCH_KEY:}
+    trade-type: NATIVE
+    pay-notify-url: ${WXPAY_NOTIFY_URL:http://localhost:8080/api/payment/wx/callback}
+    refund-notify-url: ${WXPAY_REFUND_NOTIFY_URL:http://localhost:8080/api/payment/wx/refund-callback}
+    cert-path: ${WXPAY_CERT_PATH:}
