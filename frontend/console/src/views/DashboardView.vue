@@ -13,9 +13,7 @@
               <el-icon :size="28"><Wallet /></el-icon>
             </div>
           </div>
-          <div class="stat-footer">
-            总收入: ¥ {{ formatMoney(revenue.totalRevenue) }}
-          </div>
+          <div class="stat-footer">总收入: ¥ {{ formatMoney(revenue.totalRevenue) }}</div>
         </el-card>
       </el-col>
 
@@ -30,9 +28,7 @@
               <el-icon :size="28"><Document /></el-icon>
             </div>
           </div>
-          <div class="stat-footer">
-            总订单: {{ revenue.orderCount }}
-          </div>
+          <div class="stat-footer">总订单: {{ revenue.orderCount }}</div>
         </el-card>
       </el-col>
 
@@ -64,9 +60,7 @@
               <el-icon :size="28"><CreditCard /></el-icon>
             </div>
           </div>
-          <div class="stat-footer">
-            收款账号数量
-          </div>
+          <div class="stat-footer">收款账号数量</div>
         </el-card>
       </el-col>
     </el-row>
@@ -88,9 +82,7 @@
               <el-table-column prop="date" label="日期" />
               <el-table-column prop="count" label="订单数" />
               <el-table-column label="金额">
-                <template #default="{ row }">
-                  ¥ {{ formatMoney(row.amount) }}
-                </template>
+                <template #default="{ row }"> ¥ {{ formatMoney(row.amount) }} </template>
               </el-table-column>
             </el-table>
           </div>
@@ -105,22 +97,14 @@
             </div>
           </template>
           <div class="type-list">
-            <div
-              v-for="item in paymentTypes"
-              :key="item.type"
-              class="type-item"
-            >
+            <div v-for="item in paymentTypes" :key="item.type" class="type-item">
               <div class="type-info">
                 <el-tag :type="getTagType(item.type)" size="small">
                   {{ getTypeName(item.type) }}
                 </el-tag>
                 <span class="type-count">{{ item.count }} 笔</span>
               </div>
-              <el-progress
-                :percentage="item.percentage"
-                :stroke-width="8"
-                :show-text="false"
-              />
+              <el-progress :percentage="item.percentage" :stroke-width="8" :show-text="false" />
             </div>
             <el-empty v-if="paymentTypes.length === 0" description="暂无数据" />
           </div>
@@ -141,7 +125,7 @@ const revenue = ref<RevenueStatistics>({
   todayRevenue: 0,
   orderCount: 0,
   todayOrderCount: 0,
-  successRate: 0,
+  successRate: 0
 })
 
 const paymentTypes = ref<PaymentTypeStatistics[]>([])
@@ -156,7 +140,7 @@ const getTypeName = (type: string) => {
   const typeMap: Record<string, string> = {
     wxpay: '微信支付',
     alipay: '支付宝',
-    bankcard: '银行卡',
+    bankcard: '银行卡'
   }
   return typeMap[type] || type
 }
@@ -165,7 +149,7 @@ const getTagType = (type: string) => {
   const typeMap: Record<string, 'success' | 'primary' | 'warning' | 'danger' | 'info'> = {
     wxpay: 'success',
     alipay: 'primary',
-    bankcard: 'warning',
+    bankcard: 'warning'
   }
   return typeMap[type] || 'info'
 }
@@ -191,7 +175,7 @@ const loadPaymentTypes = async () => {
 const loadTrend = async () => {
   try {
     const { data } = await httpClient.get('/api/console/statistics/trend', {
-      params: { days: 7 },
+      params: { days: 7 }
     })
     trend.value = data.data || []
   } catch {
@@ -202,9 +186,9 @@ const loadTrend = async () => {
 const loadActiveAccounts = async () => {
   try {
     const { data } = await httpClient.get('/api/accounts', {
-      params: { state: 1, page: 0, size: 1 },
+      params: { state: 1, page: 1, pageSize: 1 }
     })
-    activeAccounts.value = data.data?.totalElements || 0
+    activeAccounts.value = data.data?.total || 0
   } catch {
     // 忽略错误
   }

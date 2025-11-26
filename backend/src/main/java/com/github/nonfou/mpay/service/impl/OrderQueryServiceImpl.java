@@ -1,5 +1,6 @@
 package com.github.nonfou.mpay.service.impl;
 
+import com.github.nonfou.mpay.common.response.PageResponse;
 import com.github.nonfou.mpay.dto.order.OrderSummaryDTO;
 import com.github.nonfou.mpay.entity.OrderEntity;
 import com.github.nonfou.mpay.repository.OrderRepository;
@@ -7,6 +8,9 @@ import com.github.nonfou.mpay.service.OrderQueryService;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -38,11 +42,38 @@ public class OrderQueryServiceImpl implements OrderQueryService {
     }
 
     @Override
+    public PageResponse<OrderSummaryDTO> findActiveOrdersPage(Long pid, Integer expireMinutes, int page, int pageSize) {
+        int minutes = expireMinutes != null ? expireMinutes : DEFAULT_EXPIRE_MINUTES;
+        LocalDateTime expireTime = LocalDateTime.now().minusMinutes(minutes);
+
+        PageRequest pageRequest = PageRequest.of(page - 1, pageSize, Sort.by(Sort.Direction.DESC, "createTime"));
+        Page<OrderEntity> result = orderRepository.findActiveOrdersPage(pid, expireTime, pageRequest);
+
+        List<OrderSummaryDTO> items = result.getContent().stream()
+                .map(this::toSummaryDTO)
+                .collect(Collectors.toList());
+
+        return PageResponse.of(page, pageSize, result.getTotalElements(), items);
+    }
+
+    @Override
     public List<OrderSummaryDTO> findSuccessOrders(Long pid, LocalDateTime startTime, LocalDateTime endTime) {
         List<OrderEntity> orders = orderRepository.findSuccessOrders(pid, startTime, endTime);
         return orders.stream()
                 .map(this::toSummaryDTO)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public PageResponse<OrderSummaryDTO> findSuccessOrdersPage(Long pid, LocalDateTime startTime, LocalDateTime endTime, int page, int pageSize) {
+        PageRequest pageRequest = PageRequest.of(page - 1, pageSize, Sort.by(Sort.Direction.DESC, "payTime"));
+        Page<OrderEntity> result = orderRepository.findSuccessOrdersPage(pid, startTime, endTime, pageRequest);
+
+        List<OrderSummaryDTO> items = result.getContent().stream()
+                .map(this::toSummaryDTO)
+                .collect(Collectors.toList());
+
+        return PageResponse.of(page, pageSize, result.getTotalElements(), items);
     }
 
     @Override
@@ -54,6 +85,21 @@ public class OrderQueryServiceImpl implements OrderQueryService {
         return orders.stream()
                 .map(this::toSummaryDTO)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public PageResponse<OrderSummaryDTO> findExpiredOrdersPage(Long pid, Integer expireMinutes, int page, int pageSize) {
+        int minutes = expireMinutes != null ? expireMinutes : DEFAULT_EXPIRE_MINUTES;
+        LocalDateTime expireTime = LocalDateTime.now().minusMinutes(minutes);
+
+        PageRequest pageRequest = PageRequest.of(page - 1, pageSize, Sort.by(Sort.Direction.DESC, "createTime"));
+        Page<OrderEntity> result = orderRepository.findExpiredOrdersPage(pid, expireTime, pageRequest);
+
+        List<OrderSummaryDTO> items = result.getContent().stream()
+                .map(this::toSummaryDTO)
+                .collect(Collectors.toList());
+
+        return PageResponse.of(page, pageSize, result.getTotalElements(), items);
     }
 
     private OrderSummaryDTO toSummaryDTO(OrderEntity entity) {

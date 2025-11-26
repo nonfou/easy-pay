@@ -1,5 +1,6 @@
 package com.github.nonfou.mpay.service;
 
+import com.github.nonfou.mpay.common.response.PageResponse;
 import com.github.nonfou.mpay.dto.order.OrderSummaryDTO;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -18,6 +19,11 @@ public interface OrderQueryService {
     List<OrderSummaryDTO> findActiveOrders(Long pid, Integer expireMinutes);
 
     /**
+     * 查询活跃订单（分页）
+     */
+    PageResponse<OrderSummaryDTO> findActiveOrdersPage(Long pid, Integer expireMinutes, int page, int pageSize);
+
+    /**
      * 查询成交订单
      * @param pid 商户ID (可选)
      * @param startTime 开始时间
@@ -27,10 +33,20 @@ public interface OrderQueryService {
     List<OrderSummaryDTO> findSuccessOrders(Long pid, LocalDateTime startTime, LocalDateTime endTime);
 
     /**
+     * 查询成交订单（分页）
+     */
+    PageResponse<OrderSummaryDTO> findSuccessOrdersPage(Long pid, LocalDateTime startTime, LocalDateTime endTime, int page, int pageSize);
+
+    /**
      * 查询超时订单
      * @param pid 商户ID (可选)
      * @param expireMinutes 有效期（分钟），默认3分钟
      * @return 超时订单列表
      */
     List<OrderSummaryDTO> findExpiredOrders(Long pid, Integer expireMinutes);
+
+    /**
+     * 查询超时订单（分页）
+     */
+    PageResponse<OrderSummaryDTO> findExpiredOrdersPage(Long pid, Integer expireMinutes, int page, int pageSize);
 }

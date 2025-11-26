@@ -4,6 +4,8 @@ import com.github.nonfou.mpay.entity.OrderEntity;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -72,6 +74,11 @@ public interface OrderRepository extends JpaRepository<OrderEntity, Long> {
             "AND (:pid IS NULL OR o.pid = :pid) ORDER BY o.createTime DESC")
     List<OrderEntity> findActiveOrders(@Param("pid") Long pid, @Param("expireTime") LocalDateTime expireTime);
 
+    // P1: 订单作用域查询 - 活跃订单（分页）
+    @Query("SELECT o FROM OrderEntity o WHERE o.state = 0 AND o.createTime >= :expireTime " +
+            "AND (:pid IS NULL OR o.pid = :pid)")
+    Page<OrderEntity> findActiveOrdersPage(@Param("pid") Long pid, @Param("expireTime") LocalDateTime expireTime, Pageable pageable);
+
     // P1: 订单作用域查询 - 成交订单
     @Query("SELECT o FROM OrderEntity o WHERE o.state = 1 " +
             "AND o.payTime >= :startTime AND o.payTime < :endTime " +
@@ -80,10 +87,24 @@ public interface OrderRepository extends JpaRepository<OrderEntity, Long> {
             @Param("startTime") LocalDateTime startTime,
             @Param("endTime") LocalDateTime endTime);
 
+    // P1: 订单作用域查询 - 成交订单（分页）
+    @Query("SELECT o FROM OrderEntity o WHERE o.state = 1 " +
+            "AND o.payTime >= :startTime AND o.payTime < :endTime " +
+            "AND (:pid IS NULL OR o.pid = :pid)")
+    Page<OrderEntity> findSuccessOrdersPage(@Param("pid") Long pid,
+            @Param("startTime") LocalDateTime startTime,
+            @Param("endTime") LocalDateTime endTime,
+            Pageable pageable);
+
     // P1: 订单作用域查询 - 超时订单
     @Query("SELECT o FROM OrderEntity o WHERE o.state = 0 AND o.createTime < :expireTime " +
             "AND (:pid IS NULL OR o.pid = :pid) ORDER BY o.createTime DESC")
     List<OrderEntity> findExpiredOrders(@Param("pid") Long pid, @Param("expireTime") LocalDateTime expireTime);
+
+    // P1: 订单作用域查询 - 超时订单（分页）
+    @Query("SELECT o FROM OrderEntity o WHERE o.state = 0 AND o.createTime < :expireTime " +
+            "AND (:pid IS NULL OR o.pid = :pid)")
+    Page<OrderEntity> findExpiredOrdersPage(@Param("pid") Long pid, @Param("expireTime") LocalDateTime expireTime, Pageable pageable);
 
     // P1: 按账号ID查询交易流水
     @Query("SELECT o FROM OrderEntity o WHERE o.aid = :accountId " +

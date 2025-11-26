@@ -16,7 +16,7 @@
 
     <!-- 插件列表 -->
     <el-row v-loading="loading" :gutter="16">
-      <el-col v-for="plugin in plugins" :key="plugin.id" :xs="24" :sm="12" :lg="8" :xl="6">
+      <el-col v-for="plugin in plugins" :key="plugin.platform" :xs="24" :sm="12" :lg="8" :xl="6">
         <el-card shadow="hover" class="plugin-card">
           <template #header>
             <div class="plugin-header">
@@ -31,7 +31,7 @@
           </template>
 
           <div class="plugin-body">
-            <p class="plugin-desc">{{ plugin.description || '暂无描述' }}</p>
+            <p class="plugin-desc">{{ plugin.describe || '暂无描述' }}</p>
             <div class="plugin-meta">
               <span v-if="plugin.version">版本: {{ plugin.version }}</span>
               <span v-if="plugin.author">作者: {{ plugin.author }}</span>
@@ -70,10 +70,10 @@ import { ElMessage } from 'element-plus'
 import { httpClient } from '../services/httpClient'
 
 interface Plugin {
-  id: number
+  platform: string
   name: string
-  pluginKey: string
-  description: string
+  className: string
+  describe: string
   version: string
   author: string
   downloadUrl: string
@@ -88,7 +88,7 @@ const loadPlugins = async () => {
   loading.value = true
   try {
     const { data } = await httpClient.get('/api/plugins')
-    plugins.value = data.data || []
+    plugins.value = data.data?.items || []
   } catch {
     ElMessage.error('加载插件列表失败')
   } finally {
@@ -113,7 +113,9 @@ const handleSync = async () => {
 const handleToggleState = async (plugin: Plugin) => {
   try {
     const newState = plugin.state === 1 ? 0 : 1
-    await httpClient.put(`/api/plugins/${plugin.id}/state`, { state: newState })
+    await httpClient.patch(`/api/plugins/${plugin.platform}/state`, null, {
+      params: { state: newState }
+    })
     plugin.state = newState
     ElMessage.success('状态更新成功')
   } catch {

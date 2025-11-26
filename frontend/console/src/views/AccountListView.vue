@@ -246,8 +246,10 @@ const getPlatformTagType = (platform: string) => {
 const loadAccounts = async () => {
   loading.value = true
   try {
-    const { data } = await httpClient.get('/api/accounts')
-    accounts.value = data.data || []
+    const { data } = await httpClient.get('/api/accounts', {
+      params: { page: 1, pageSize: 100 }
+    })
+    accounts.value = data.data?.items || []
   } catch {
     ElMessage.error('加载账号列表失败')
   } finally {
@@ -288,8 +290,8 @@ const handleSaveAccount = async () => {
 
 const handleToggleState = async (account: AccountSummary) => {
   try {
-    await httpClient.put(`/api/accounts/${account.id}/state`, {
-      state: account.state
+    await httpClient.post(`/api/accounts/${account.id}/state`, null, {
+      params: { state: account.state }
     })
     ElMessage.success('状态更新成功')
   } catch {

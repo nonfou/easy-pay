@@ -120,13 +120,13 @@ const users = ref<User[]>([])
 
 const filters = reactive({
   role: undefined as number | undefined,
-  state: undefined as number | undefined,
+  state: undefined as number | undefined
 })
 
 const pagination = reactive({
   page: 1,
   size: 10,
-  total: 0,
+  total: 0
 })
 
 const roleDialogVisible = ref(false)
@@ -137,16 +137,16 @@ const loadUsers = async () => {
   loading.value = true
   try {
     const params: Record<string, unknown> = {
-      page: pagination.page - 1,
-      size: pagination.size,
+      page: pagination.page,
+      pageSize: pagination.size
     }
 
     if (filters.role !== undefined) params.role = filters.role
     if (filters.state !== undefined) params.state = filters.state
 
     const { data } = await httpClient.get('/api/users', { params })
-    users.value = data.data?.content || []
-    pagination.total = data.data?.totalElements || 0
+    users.value = data.data?.items || []
+    pagination.total = data.data?.total || 0
   } catch {
     ElMessage.error('加载用户列表失败')
   } finally {
@@ -177,7 +177,7 @@ const handleSaveRole = async () => {
 
   try {
     await httpClient.put(`/api/users/${currentUser.value.pid}/role`, {
-      role: newRole.value,
+      role: newRole.value
     })
     currentUser.value.role = newRole.value
     ElMessage.success('角色更新成功')
@@ -190,14 +190,14 @@ const handleSaveRole = async () => {
 const handleToggleState = async (user: User) => {
   const action = user.state === 1 ? '禁用' : '启用'
   try {
-    await ElMessageBox.confirm(
-      `确定要${action}用户 ${user.username} 吗？`,
-      '确认',
-      { type: 'warning' }
-    )
+    await ElMessageBox.confirm(`确定要${action}用户 ${user.username} 吗？`, '确认', {
+      type: 'warning'
+    })
 
     const newState = user.state === 1 ? 0 : 1
-    await httpClient.put(`/api/users/${user.pid}/state`, { state: newState })
+    await httpClient.put(`/api/users/${user.pid}/state`, null, {
+      params: { state: newState }
+    })
     user.state = newState
     ElMessage.success(`用户已${action}`)
   } catch (error: unknown) {
