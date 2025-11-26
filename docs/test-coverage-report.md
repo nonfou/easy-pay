@@ -29,7 +29,6 @@
 | **PublicOrderService** | **PublicOrderServiceTest** | ✅ **新增** | **16** |
 | **AuthService** | **AuthServiceTest** | ✅ **新增** | **15** |
 | **AccountService** | **AccountServiceTest** | ✅ **新增** | **17** |
-| **PluginService** | **PluginServiceTest** | ✅ **新增** | **15** |
 | **PaymentMatchService** | **PaymentMatchServiceTest** | ✅ **新增** | **7** |
 | **ListenService** | **ListenServiceTest** | ✅ **新增** | **13** |
 | **NotifyLogService** | **NotifyLogServiceImplTest** | ✅ **新增** | **11** |
@@ -211,7 +210,6 @@ class PublicOrderControllerTest {
 | **ChannelSelector** | **SimpleChannelSelector.java** | ✅ **已完成** |
 | **OrderIdGenerator** | **OrderIdGenerator.java** | ✅ **已完成** |
 | **AccountService** | **AccountServiceImpl.java** | ✅ **已完成** |
-| **PluginService** | **PluginServiceImpl.java** | ✅ **已完成** |
 | **ListenService** | **ListenServiceImpl.java** | ✅ **已完成** |
 | **NotifyLogService** | **NotifyLogServiceImpl.java** | ✅ **已完成** |
 | **UserService** | **UserServiceImpl.java** | ✅ **已完成** |
@@ -226,7 +224,6 @@ class PublicOrderControllerTest {
 | PayChannelRepository | 通道状态查询 |
 | PayAccountRepository | 账号查询 |
 | MerchantRepository | 商户查询 |
-| PluginRepository | 插件查询 |
 
 ---
 
@@ -428,6 +425,6 @@ public abstract class BaseServiceTest {
 | 2025-11-25 | Service 层覆盖率从 61.11% 提升到 66.67%，工具类覆盖率从 0% 提升到 19% |
 | 2025-11-25 | 总测试数从 124 个增加到 224 个（新增 100 个测试） |
 | 2025-11-25 | CRITICAL 级别安全问题（签名验证、JWT验证）已全部覆盖测试 |
-| 2025-11-25 | 新增 6 个测试文件: PublicOrderServiceTest, AuthServiceTest, AccountServiceTest, PluginServiceTest, PaymentMatchServiceTest, ListenServiceTest |
+| 2025-11-25 | 新增 6 个测试文件: PublicOrderServiceTest, AuthServiceTest, AccountServiceTest, PaymentMatchServiceTest, ListenServiceTest |
 | 2025-11-25 | Service 层覆盖率从 27.78% 提升到 61.11% |
 | 2025-11-25 | 总测试数从 41 个增加到 124 个 |

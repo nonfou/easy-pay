@@ -33,12 +33,6 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '账号管理' },
       },
       {
-        path: 'plugins',
-        name: 'plugins',
-        component: () => import('../views/PluginListView.vue'),
-        meta: { title: '插件管理' },
-      },
-      {
         path: 'users',
         name: 'users',
         component: () => import('../views/UserListView.vue'),

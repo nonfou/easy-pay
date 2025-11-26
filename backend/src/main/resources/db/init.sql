@@ -99,24 +99,6 @@ CREATE TABLE IF NOT EXISTS order_notify_log (
     INDEX idx_notify_log_status (status)
 );
 
--- ------------------------------------------------------------
--- 插件定义表 (PluginEntity -> plugin_definition)
--- ------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS plugin_definition (
-    platform VARCHAR(64) PRIMARY KEY COMMENT '平台标识',
-    name VARCHAR(255) NOT NULL COMMENT '插件名称',
-    class_name VARCHAR(255) NOT NULL COMMENT '类名',
-    price VARCHAR(255) COMMENT '价格说明',
-    describe_text TEXT COMMENT '描述',
-    website VARCHAR(255) COMMENT '官网',
-    state INT NOT NULL COMMENT '状态: 0-禁用, 1-启用',
-    install TINYINT(1) NOT NULL COMMENT '安装状态: 0-未安装, 1-已安装',
-    query TEXT COMMENT '查询配置',
-    version VARCHAR(255) COMMENT '版本号',
-    author VARCHAR(255) COMMENT '作者',
-    download_url VARCHAR(255) COMMENT '下载地址'
-);
-
 -- ============================================================
 -- 初始数据
 -- ============================================================

@@ -87,10 +87,10 @@ Easy-Pay (mpay) 是一个**支付聚合系统**，核心功能包括：
 │  │   Auth       │  │   Payment    │  │   Account    │              │
 │  │   认证模块   │  │   支付模块   │  │   账号模块   │              │
 │  └──────────────┘  └──────────────┘  └──────────────┘              │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐              │
-│  │   Plugin     │  │   Monitor    │  │   Statistics │              │
-│  │   插件模块   │  │   监听模块   │  │   统计模块   │              │
-│  └──────────────┘  └──────────────┘  └──────────────┘              │
+│  ┌──────────────┐  ┌──────────────┐                                │
+│  │   Monitor    │  │   Statistics │                                │
+│  │   监听模块   │  │   统计模块   │                                │
+│  └──────────────┘  └──────────────┘                                │
 ├─────────────────────────────────────────────────────────────────────┤
 │                       Common (通用组件层)                            │
 │  ApiResponse | BusinessException | GlobalExceptionHandler           │
@@ -120,8 +120,8 @@ com.github.nonfou.mpay
 │       └── GlobalExceptionHandler.java
 ├── controller/                    # 控制器层 (14个)
 ├── dto/                           # 数据传输对象 (29个)
-├── entity/                        # 实体类 (6个)
-├── repository/                    # 数据访问层 (6个)
+├── entity/                        # 实体类 (5个)
+├── repository/                    # 数据访问层 (5个)
 ├── service/                       # 服务层 (18个接口)
 │   └── impl/                      # 实现类
 ├── security/                      # 安全模块 (8个)
@@ -143,7 +143,6 @@ frontend/console/
 │   │   ├── DashboardView.vue     # 仪表盘
 │   │   ├── OrderListView.vue     # 订单管理
 │   │   ├── AccountListView.vue   # 账号管理
-│   │   ├── PluginListView.vue    # 插件管理
 │   │   ├── UserListView.vue      # 用户管理
 │   │   └── TestPayView.vue       # 测试支付
 │   ├── layouts/                  # 布局组件
@@ -269,21 +268,6 @@ user (1) ──< pay_account (1) ──< pay_channel
 | `last_error` | text | 最后错误信息 |
 | `next_retry_time` | datetime | 下次重试时间 |
 
-#### 3.2.6 plugin_definition 表
-
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| `platform` | varchar | 平台标识 (主键) |
-| `name` | varchar | 插件名称 |
-| `class_name` | varchar | 类名 |
-| `price` | decimal | 价格 |
-| `describe` | text | 描述 |
-| `website` | varchar | 官网 |
-| `state` | tinyint | 状态 |
-| `install` | tinyint | 安装状态 |
-| `query` | json | 查询配置 |
-| `version` | varchar | 版本 |
-
 ### 3.3 索引建议
 
 为高频查询字段添加索引：
@@ -381,27 +365,7 @@ user (1) ──< pay_account (1) ──< pay_channel
 | `/api/console/accounts/{id}/channels` | GET | 通道列表 |
 | `/api/console/accounts/{id}/channels` | POST | 创建通道 |
 
-### 4.4 插件模块 (Plugin)
-
-**职责**：
-- 管理支付插件元数据与本地安装状态
-- 同步远程插件市场信息
-- 启停插件、卸载插件、维护查询参数
-
-**核心组件**：
-- `PluginService`: 插件管理服务
-- `PluginEntity`: 插件定义实体
-
-**接口列表**：
-| 接口 | 方法 | 说明 |
-|------|------|------|
-| `/api/console/plugins` | GET | 插件列表 |
-| `/api/console/plugins` | POST | 新增/更新插件 |
-| `/api/console/plugins/{platform}/state` | PATCH | 启用/停用 |
-| `/api/console/plugins/{platform}` | DELETE | 卸载 |
-| `/api/console/plugins/sync` | POST | 同步远程市场 |
-
-### 4.5 监听模块 (Monitor)
+### 4.4 监听模块 (Monitor)
 
 **职责**：
 - 取代旧版 `runtime/order.json` 轮询机制
@@ -420,7 +384,7 @@ user (1) ──< pay_account (1) ──< pay_channel
 | `/api/listen/payment` | POST | 上报支付记录 |
 | `/api/internal/orders/match` | POST | 订单匹配（内部） |
 
-### 4.6 统计模块 (Statistics)
+### 4.5 统计模块 (Statistics)
 
 **职责**：
 - 提供仪表盘数据聚合
@@ -436,7 +400,7 @@ user (1) ──< pay_account (1) ──< pay_channel
 | `/api/console/statistics/payment-types` | GET | 支付类型分布 |
 | `/api/console/statistics/trends` | GET | 订单趋势 |
 
-### 4.7 通用组件 (Common)
+### 4.6 通用组件 (Common)
 
 **职责**：
 - 提供各模块复用的基础能力
@@ -729,17 +693,6 @@ entity "order_notify_log" as notify_log {
   retry_count : int
   last_error : text
   next_retry_time : datetime
-}
-
-entity "plugin_definition" as plugin {
-  *platform : varchar
-  --
-  name : varchar
-  class_name : varchar
-  price : decimal
-  describe : text
-  website : varchar
-  state : tinyint
 }
 
 user ||--o{ pay_account : "1:N"

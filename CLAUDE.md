@@ -50,8 +50,8 @@ docker compose down     # 停止基础设施
 - `controller/` - REST 控制器 (14个)，分为公共接口、内部接口、后台接口
 - `service/` + `service/impl/` - 业务逻辑层
 - `repository/` - Spring Data JPA 数据访问
-- `entity/` - JPA 实体 (MerchantEntity, OrderEntity, PayAccountEntity, PayChannelEntity, PluginEntity, OrderNotifyLogEntity)
-- `dto/` - 数据传输对象，按领域分子包 (account/, auth/, cashier/, order/, plugin/, monitor/, statistics/, user/)
+- `entity/` - JPA 实体 (MerchantEntity, OrderEntity, PayAccountEntity, PayChannelEntity, OrderNotifyLogEntity)
+- `dto/` - 数据传输对象，按领域分子包 (account/, auth/, cashier/, order/, monitor/, statistics/, user/)
 - `security/` - JWT 认证 (SecurityConfig, JwtTokenProvider, JwtAuthenticationFilter)
 - `common/` - 统一响应 (ApiResponse)、异常处理 (BusinessException, GlobalExceptionHandler)
 
@@ -87,7 +87,7 @@ frontend/
 
 ## Database
 - MySQL，使用 Flyway 迁移，脚本位于 `backend/src/main/resources/db/`
-- 初始化脚本: `init.sql` (user, orders, pay_account, pay_channel, order_notify_log, plugin_definition)
+- 初始化脚本: `init.sql` (user, orders, pay_account, pay_channel, order_notify_log)
 - 金额字段使用 `BigDecimal` (decimal(10,2))
 
 ## Configuration
