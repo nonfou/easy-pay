@@ -11,7 +11,7 @@
       <div class="error-icon">!</div>
       <h2>订单加载失败</h2>
       <p>{{ error }}</p>
-      <button @click="router.push('/')">返回首页</button>
+      <button @click="router.push('/cashier')">返回首页</button>
     </div>
 
     <!-- 订单信息 -->
@@ -83,14 +83,14 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { getOrderDetail, getOrderState } from '../services'
+import { getOrderDetail, getOrderState } from '../../services/cashierApi'
 import {
   OrderState,
   PaymentTypeText,
   OrderStateText,
   type CashierOrder,
-  type OrderStateType
-} from '../types'
+  type OrderStateType,
+} from '../../types/cashier'
 
 const props = defineProps<{
   orderId: string
@@ -193,8 +193,9 @@ const loadOrder = async () => {
       startPolling()
       startCountdown()
     }
-  } catch (err: any) {
-    error.value = err.response?.data?.message || '订单不存在或已失效'
+  } catch (err: unknown) {
+    const e = err as { response?: { data?: { message?: string } } }
+    error.value = e.response?.data?.message || '订单不存在或已失效'
   } finally {
     loading.value = false
   }
@@ -215,7 +216,7 @@ const pollOrderState = async () => {
         stopCountdown()
 
         // 跳转到结果页
-        router.push({ name: 'result', params: { orderId: props.orderId } })
+        router.push({ name: 'cashier-result', params: { orderId: props.orderId } })
       }
     }
 

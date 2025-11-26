@@ -2,13 +2,13 @@
  * 订单状态枚举
  */
 export const OrderState = {
-  PENDING: 0,   // 待支付
-  SUCCESS: 1,   // 支付成功
-  FAILED: 2,    // 支付失败
-  EXPIRED: 3,   // 已过期
+  PENDING: 0, // 待支付
+  SUCCESS: 1, // 支付成功
+  FAILED: 2, // 支付失败
+  EXPIRED: 3, // 已过期
 } as const
 
-export type OrderStateType = typeof OrderState[keyof typeof OrderState]
+export type OrderStateType = (typeof OrderState)[keyof typeof OrderState]
 
 /**
  * 订单状态文本映射
@@ -28,7 +28,7 @@ export const PaymentType = {
   ALIPAY: 'alipay',
 } as const
 
-export type PaymentTypeValue = typeof PaymentType[keyof typeof PaymentType]
+export type PaymentTypeValue = (typeof PaymentType)[keyof typeof PaymentType]
 
 /**
  * 支付类型文本映射
@@ -62,13 +62,4 @@ export interface OrderStateResponse {
   state: OrderStateType
   expireIn: number
   returnUrl: string | null
-}
-
-/**
- * API 响应包装
- */
-export interface ApiResponse<T> {
-  code: number
-  message: string
-  data: T
 }

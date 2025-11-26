@@ -3,12 +3,35 @@ import type { RouteRecordRaw } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 
 const routes: RouteRecordRaw[] = [
+  // ========== 收银台路由（公开，无认证，无布局） ==========
+  {
+    path: '/cashier',
+    name: 'cashier-home',
+    component: () => import('../views/cashier/CashierHomeView.vue'),
+    meta: { requiresAuth: false },
+  },
+  {
+    path: '/cashier/pay/:orderId',
+    name: 'cashier-pay',
+    component: () => import('../views/cashier/CashierPayView.vue'),
+    props: true,
+    meta: { requiresAuth: false },
+  },
+  {
+    path: '/cashier/result/:orderId',
+    name: 'cashier-result',
+    component: () => import('../views/cashier/CashierResultView.vue'),
+    props: true,
+    meta: { requiresAuth: false },
+  },
+  // ========== 登录页 ==========
   {
     path: '/login',
     name: 'login',
     component: () => import('../views/LoginView.vue'),
     meta: { requiresAuth: false },
   },
+  // ========== 管理后台路由（需认证，使用 DefaultLayout） ==========
   {
     path: '/',
     component: () => import('../layouts/DefaultLayout.vue'),

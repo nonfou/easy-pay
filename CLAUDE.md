@@ -14,20 +14,16 @@ mvn test -Dtest=OrderMatchServiceTest#testMatchOrder  # 运行单个测试方法
 mvn package -DskipTests                # 打包 (跳过测试)
 ```
 
-### Frontend (pnpm workspace)
+### Frontend (Vue 3 + TypeScript)
 ```bash
 cd frontend
 pnpm install                # 安装所有依赖
 
 # 开发模式
-pnpm dev                    # 同时启动 console (5173) 和 cashier (5174)
-pnpm dev:console            # 仅启动 console (localhost:5173)
-pnpm dev:cashier            # 仅启动 cashier (localhost:5174)
+pnpm dev                    # 启动开发服务器 (localhost:5173)
 
 # 构建
-pnpm build                  # 构建所有应用
-pnpm build:console          # 仅构建 console
-pnpm build:cashier          # 仅构建 cashier
+pnpm build                  # 构建生产版本
 
 # 代码质量
 pnpm lint                   # ESLint 检查
@@ -63,22 +59,35 @@ docker compose down     # 停止基础设施
 - `/api/internal/**` - 内部接口 (订单匹配)，需要权限控制
 - `/api/listen/**` - 监听客户端接口
 
-### Frontend Structure (pnpm workspace)
+### Frontend Structure
 ```
 frontend/
-├── pnpm-workspace.yaml     # workspace 配置
-├── package.json            # 根 package.json (脚本和代码质量工具)
-├── .eslintrc.cjs           # ESLint 配置
-├── .prettierrc             # Prettier 配置
-├── console/                # 管理后台 (Element Plus + Pinia)
-│   ├── package.json
-│   ├── vite.config.ts
-│   └── src/
-└── cashier/                # 收银台 (轻量级，qrcode.vue)
-    ├── package.json
-    ├── vite.config.ts
-    └── src/
+├── src/
+│   ├── views/              # 页面组件
+│   │   ├── cashier/        # 收银台页面 (公开，无需认证)
+│   │   │   ├── CashierHomeView.vue   # 订单查询
+│   │   │   ├── CashierPayView.vue    # 支付页面
+│   │   │   └── CashierResultView.vue # 结果页面
+│   │   ├── DashboardView.vue         # 仪表盘
+│   │   ├── OrderListView.vue         # 订单管理
+│   │   ├── AccountListView.vue       # 账号管理
+│   │   ├── UserListView.vue          # 用户管理
+│   │   ├── TestPayView.vue           # 测试支付
+│   │   └── LoginView.vue             # 登录页
+│   ├── layouts/            # 布局组件
+│   ├── router/             # 路由配置
+│   ├── services/           # API 服务
+│   ├── stores/             # Pinia 状态管理
+│   └── types/              # TypeScript 类型定义
+├── package.json
+├── vite.config.ts
+└── tsconfig.json
 ```
+
+**路由说明**:
+- `/cashier/*` - 收银台页面，无需认证
+- `/login` - 登录页
+- `/` - 管理后台，需要 JWT 认证
 
 ### Key Business Flows
 1. **订单创建**: PublicOrderController → PublicOrderService → ChannelSelector (选通道) → PriceAllocator (金额去重 +0.01)

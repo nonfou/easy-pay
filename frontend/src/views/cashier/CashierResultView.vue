@@ -11,7 +11,7 @@
       <div class="icon error-icon">!</div>
       <h2>加载失败</h2>
       <p class="message">{{ error }}</p>
-      <button class="btn primary" @click="router.push('/')">返回首页</button>
+      <button class="btn primary" @click="router.push('/cashier')">返回首页</button>
     </div>
 
     <!-- 支付成功 -->
@@ -29,7 +29,7 @@
       </div>
       <div class="actions">
         <button v-if="order?.returnUrl" class="btn primary" @click="goBack">返回商户</button>
-        <button class="btn secondary" @click="router.push('/')">返回首页</button>
+        <button class="btn secondary" @click="router.push('/cashier')">返回首页</button>
       </div>
     </div>
 
@@ -61,7 +61,7 @@
       </div>
       <div class="actions">
         <button v-if="order?.returnUrl" class="btn primary" @click="goBack">返回商户</button>
-        <button class="btn secondary" @click="router.push('/')">返回首页</button>
+        <button class="btn secondary" @click="router.push('/cashier')">返回首页</button>
       </div>
     </div>
 
@@ -80,8 +80,8 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { getOrderDetail } from '../services'
-import { OrderState, type CashierOrder } from '../types'
+import { getOrderDetail } from '../../services/cashierApi'
+import { OrderState, type CashierOrder } from '../../types/cashier'
 
 const props = defineProps<{
   orderId: string
@@ -105,8 +105,9 @@ const loadOrder = async () => {
     loading.value = true
     error.value = ''
     order.value = await getOrderDetail(props.orderId)
-  } catch (err: any) {
-    error.value = err.response?.data?.message || '订单不存在'
+  } catch (err: unknown) {
+    const e = err as { response?: { data?: { message?: string } } }
+    error.value = e.response?.data?.message || '订单不存在'
   } finally {
     loading.value = false
   }
@@ -119,7 +120,7 @@ const goBack = () => {
 }
 
 const goToPay = () => {
-  router.push({ name: 'pay', params: { orderId: props.orderId } })
+  router.push({ name: 'cashier-pay', params: { orderId: props.orderId } })
 }
 
 const retry = () => {

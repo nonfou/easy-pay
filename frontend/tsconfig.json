@@ -1,4 +1,7 @@
 {
   "files": [],
-  "references": [{ "path": "./console" }, { "path": "./cashier" }]
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.node.json" }
+  ]
 }

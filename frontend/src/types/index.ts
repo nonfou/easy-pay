@@ -109,3 +109,6 @@ export interface AccountSummary {
   pattern: number
   channels: PayChannel[]
 }
+
+// 收银台类型
+export * from './cashier'

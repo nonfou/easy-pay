@@ -38,7 +38,7 @@ const searchOrder = () => {
   if (!id) return
 
   error.value = ''
-  router.push({ name: 'pay', params: { orderId: id } })
+  router.push({ name: 'cashier-pay', params: { orderId: id } })
 }
 </script>
 
