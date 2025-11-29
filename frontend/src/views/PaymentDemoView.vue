@@ -4,6 +4,7 @@
       <template #header>
         <div class="card-header">
           <span>支付网关演示</span>
+          <el-button type="text" @click="$router.push('/refund')">退款测试</el-button>
         </div>
       </template>
 

@@ -1,0 +1,49 @@
+spring:
+  application:
+    name: mpay
+
+server:
+  port: 8080
+  servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+
+logging:
+  charset:
+    console: UTF-8
+    file: UTF-8
+  level:
+    com.github.nonfou.mpay: DEBUG
+    org.springframework.web: INFO
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+easy-pay:
+  # 支付宝配置
+  alipay:
+    app-id: ${ALIPAY_APP_ID:9021000157693751}
+    private-key: ${ALIPAY_PRIVATE_KEY:MIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQCSHLwjTf8g8YvAPCFbPA9RiI7AlumgtXmSsre9KhQEdbCORWASufSsbjz65EeiN/7MkA/GKZO8h6dtmzUM4YLGtRZDUQyO3gecIrfnJ/EdcfPEcfx0Dvmi5aWDRhOBXCoO8IFtxvaJ0eGwt8M7RnIdrctk4Snby1JnMZrZN3ko0RTVB5a6gTnUGWaprWDYW6lUVcpGpl0bRuJV8J1SQ2wfjFgTTwtwWcentwI11S3GU94905y+E+FUaHHJ0gO8zc2zCZgq5si+qB7GYkQvUyoxaZDjsj3qSdd9CqFkuLaj5+QSwnS0LVQf97VUUYtygrShI0DphPmkDiM/GHzKjcIJAgMBAAECggEBAIFHoYPPaFU6w790tMLn8lne7Qgkv1SuHYKaVQ6v44RKqcxIQAhxtra214faYjN7Phy7vulEMm7WzGKjuJ3MDw1IfwlS9jyW4b7ZzURfR+0YvWpsvMXn1iO28+qiH3IPHTuYu7xpFgy9wua8waZ531C5TMTWoVXTofaionNdrPtaJPufmsiRfLsWqv48hXpfbmp29dy/MRR+YlIu+7QUQllAnWXwIKGGmJERf8RvTQWvPoeFEhBGslJhHxij3ulKumLlmv0d/12EWeZ/ygqwf25Of7Z0KGoi7Kzwa8lhmNzRDYZjOk41GXnyT5yM9rSG0z29vCGbSdkddp7qGKAJR4ECgYEAzw23fcUMNaiANW76JOnN4mwfqTQ09VpLnMNlbIrBFBsEBjdjXSLYs92REOve2JbDNyT7m0yv3oYuAUSkr5Y4C+TqZ/5M7w63o8+oxi5g+FjMbdG/Io67kwkW0i9mEZJXY7TF48+PbBjmaGkw2niSAc+d0Gdq40VEy+V2er1ZxhkCgYEAtKcGZTOLn4GdQOgXxfFdzpARksar/X7uDyPb/qvYpqNoTigzisz0HOYZELoUauAtYGZWlW3okQuNVFL1hN38SHClzeJ9dg581C7KDdgSVpUZTp0C7hZQEqDYi3/orPpjIROW+pFZCqOpLgUfsmVOLrwGmVNmhd5EMUni9dgX+XECgYAnRHWxL4aiQoOWHqboC0NVlqXmhBUrFuXSJCh/Dk2Rz5HSz/xTNIGekv2pFOKddvIs6iGhkUilThM5gFgvSLD2aIKgGFVk3Qis03wxoagYUVbr2OSD3EfsmcOvNvgHixZxvV3uV3XezVYdJR3zwPwHxeUrGgHmekOS28C9hF2bOQKBgQCEXqKEAwn6vYmRZr8MrnhTBCOsTeD2ZUxgUaFAcYDVUYT7R9/Eg7sXdc7F/+M4EL2PFk25Poibx0Aumn8GdXYHSmtjeeL+X00+WG57SGjfgm7BuLDN7hGMJMmnJflCzlFWijklrtz0u8kaTGzWVf68pc+cB41m599F0mL4Svf+MQKBgQCDQOpXNxP0mJBJ5hwyVs6IufhOr2c+Vr5VHz6xcBoz2E0+XZl/aYu8CKiIyZAQMRpqCtQEf+WuX+FlRLyD5M5H0iu0LmS4thP/F/kiTTmgAFTwP6u5yU3rwgHLbCWNkLOtvVX3ti2KCSW5VGbI4LW3JFDJxTzJIpkAkWMLffERug==}
+    public-key: ${ALIPAY_PUBLIC_KEY:MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvZW98iPfo4LqY7hmKD9PR2Ifauz2DA13Rc3c+778hGxyA7GDt2WmlFLDItpBBS7bgEo4/okNJXE7jzcNYTwJbZVstpZ7d98l0zZ6eNyjY2rYCL+mIgNdXXA+uPof8gttaeQUXC52QgBHYWD/op91qgK1shs5tIVbrWax3D559TgNtdhmV5dtyacXvmMx/0Ax9iFARjjWVwvW0oIoJgih+ao+HkOWYNZbVUWmhuVGSN/0JujdYoPMsdly//bNw5rNes8FnNx/BlzmTB1BPEblwX6CDkWTGh40M8K4L3sa4BoUWi1KqD0zMk4omty40xnthcx/QMxSF0eX07sLjtDuywIDAQAB}
+    notify-url: ${ALIPAY_NOTIFY_URL:http://localhost:8080/api/payment/alipay/callback}
+    return-url: ${ALIPAY_RETURN_URL:http://localhost:5173/result}
+    sign-type: RSA2
+    charset: utf-8
+    # 正式环境: https://openapi.alipay.com/gateway.do
+    # 沙箱环境: https://openapi-sandbox.dl.alipaydev.com/gateway.do
+    gateway-url: ${ALIPAY_GATEWAY_URL:https://openapi-sandbox.dl.alipaydev.com/gateway.do}
+
+  # 微信支付配置
+  wxpay:
+    app-id: ${WXPAY_APP_ID:}
+    mch-id: ${WXPAY_MCH_ID:}
+    mch-key: ${WXPAY_MCH_KEY:}
+    trade-type: NATIVE
+    pay-notify-url: ${WXPAY_NOTIFY_URL:http://localhost:8080/api/payment/wx/callback}
+    refund-notify-url: ${WXPAY_REFUND_NOTIFY_URL:http://localhost:8080/api/payment/wx/refund-callback}
+    cert-path: ${WXPAY_CERT_PATH:}

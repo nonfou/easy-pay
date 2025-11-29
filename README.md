@@ -15,22 +15,23 @@ Easy-Pay (mpay) 是一个支付聚合系统，提供商户下单、收款码分�
 
 ```
 easy-pay/
-├── backend/                    # Spring Boot 单体应用
-│   └── src/main/java/com/github/nonfou/mpay/
-│       ├── controller/         # REST 控制器
-│       ├── service/            # 业务逻辑层
-│       ├── repository/         # 数据访问层
-│       ├── entity/             # JPA 实体
-│       ├── dto/                # 数据传输对象
-│       ├── security/           # JWT 认证
-│       └── common/             # 统一响应/异常
-├── frontend/
-│   ├── console/                # Vue 3 管理后台 (Element Plus)
-│   └── cashier/                # Vue 3 收银台
-├── docs/                       # 设计文档
-│   ├── project-design.md       # 项目设计文档
-│   └── code-review-report.md   # 代码评审报告
-└── docker-compose.yml          # MySQL + Redis
+├── backend/                        # Maven 多模块项目
+│   ├── pom.xml                     # 父 POM
+│   ├── mpay/                       # 核心支付模块
+│   │   └── src/main/java/com/github/nonfou/mpay/
+│   │       ├── controller/         # REST 控制器
+│   │       ├── payment/            # 支付相关
+│   │       │   ├── config/         # 支付配置
+│   │       │   ├── properties/     # 配置属性
+│   │       │   ├── service/        # 支付服务
+│   │       │   └── dto/            # 支付 DTO
+│   │       ├── websocket/          # WebSocket 支付通知
+│   │       └── common/             # 统一响应/异常
+│   └── easy-pay-spring-boot-starter/  # Spring Boot Starter
+│       └── src/main/java/.../autoconfigure/
+├── frontend/                       # Vue 3 前端
+├── docs/                           # 设计文档
+└── docker-compose.yml              # MySQL + Redis
 ```
 
 ## 快速开始
@@ -46,7 +47,7 @@ docker compose up -d
 ### 2. 启动后端
 
 ```bash
-cd backend
+cd backend/mpay
 mvn spring-boot:run
 ```
 
@@ -66,6 +67,37 @@ cd frontend/cashier
 npm install && npm run dev
 ```
 
+## Spring Boot Starter 集成
+
+如果你想在其他 Spring Boot 项目中使用支付功能，可以直接引入 Starter：
+
+```xml
+<dependency>
+    <groupId>com.github.nonfou</groupId>
+    <artifactId>easy-pay-spring-boot-starter</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+</dependency>
+```
+
+配置 `application.yml`：
+
+```yaml
+easy-pay:
+  alipay:
+    app-id: 你的应用ID
+    private-key: 你的商户私钥
+    public-key: 支付宝公钥
+    notify-url: https://yourdomain.com/api/payment/alipay/callback
+    return-url: https://yourdomain.com/payment/result
+  wxpay:
+    app-id: 微信公众号/小程序 appId
+    mch-id: 商户号
+    mch-key: API 密钥
+    pay-notify-url: https://yourdomain.com/api/payment/wxpay/callback
+```
+
+详见 [Starter 文档](backend/easy-pay-spring-boot-starter/README.md)
+
 ## 核心功能
 
 - **商户下单**: `/api/public/orders/create` - 创建支付订单
@@ -73,6 +105,7 @@ npm install && npm run dev
 - **订单管理**: `/api/console/orders` - 后台订单查询与管理
 - **账号管理**: `/api/console/accounts` - 收款账号与通道配置
 - **用户认证**: `/api/auth/login` - JWT 登录认证
+- **支付接口**: `/api/payment/*` - 支付宝/微信支付接口
 
 ## 配置说明
 
@@ -93,7 +126,20 @@ npm install && npm run dev
 - 密码: `admin123`
 - PID: `1000`
 
+## 构建
+
+```bash
+cd backend
+mvn clean install -DskipTests
+```
+
+生成的 jar：
+- `mpay/target/mpay-1.0.0-SNAPSHOT.jar` - 库 jar（用于被依赖）
+- `mpay/target/mpay-1.0.0-SNAPSHOT-exec.jar` - 可执行 jar（独立运行）
+- `easy-pay-spring-boot-starter/target/easy-pay-spring-boot-starter-1.0.0-SNAPSHOT.jar` - Starter
+
 ## 文档
 
 - [项目设计文档](docs/project-design.md) - 架构、数据库、模块说明
 - [代码评审报告](docs/code-review-report.md) - 已知问题与修复进度
+- [Starter 使用文档](backend/easy-pay-spring-boot-starter/README.md) - Spring Boot Starter 集成指南

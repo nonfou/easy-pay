@@ -1,0 +1,35 @@
+# 集成测试配置 - 用于真实调用支付宝沙箱API
+# 运行集成测试前，请配置以下环境变量:
+# - ALIPAY_APP_ID: 支付宝沙箱应用ID
+# - ALIPAY_PRIVATE_KEY: 应用私钥
+# - ALIPAY_PUBLIC_KEY: 支付宝公钥
+
+spring:
+  application:
+    name: mpay-integration-test
+
+server:
+  port: 8080
+
+logging:
+  level:
+    com.github.nonfou.mpay: DEBUG
+    com.alipay: DEBUG
+    root: INFO
+
+mpay:
+  alipay:
+    app-id: ${ALIPAY_APP_ID:}
+    private-key: ${ALIPAY_PRIVATE_KEY:}
+    public-key: ${ALIPAY_PUBLIC_KEY:}
+    notify-url: http://localhost:8080/api/payment/alipay/callback
+    return-url: http://localhost:5173/result
+    sign-type: RSA2
+    charset: utf-8
+    # 沙箱环境
+    gateway-url: https://openapi-sandbox.dl.alipaydev.com/gateway.do
+
+  wxpay:
+    app-id: ${WXPAY_APP_ID:}
+    mch-id: ${WXPAY_MCH_ID:}
+    mch-key: ${WXPAY_MCH_KEY:}

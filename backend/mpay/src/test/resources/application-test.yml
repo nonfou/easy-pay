@@ -1,0 +1,30 @@
+# 测试配置 - 用于单元测试
+spring:
+  application:
+    name: mpay-test
+
+server:
+  port: 8080
+
+logging:
+  level:
+    com.github.nonfou.mpay: DEBUG
+    root: WARN
+
+# 测试环境不需要真实配置
+# 单元测试使用 Mock
+mpay:
+  alipay:
+    app-id: ${ALIPAY_APP_ID:}
+    private-key: ${ALIPAY_PRIVATE_KEY:}
+    public-key: ${ALIPAY_PUBLIC_KEY:}
+    notify-url: http://localhost:8080/api/payment/alipay/callback
+    return-url: http://localhost:5173/result
+    sign-type: RSA2
+    charset: utf-8
+    gateway-url: https://openapi-sandbox.dl.alipaydev.com/gateway.do
+
+  wxpay:
+    app-id: ${WXPAY_APP_ID:}
+    mch-id: ${WXPAY_MCH_ID:}
+    mch-key: ${WXPAY_MCH_KEY:}
