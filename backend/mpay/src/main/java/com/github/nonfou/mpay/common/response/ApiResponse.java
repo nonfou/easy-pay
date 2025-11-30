@@ -79,4 +79,12 @@ public class ApiResponse<T> {
                 .msg(errorCode + ": " + message)
                 .build();
     }
+
+    public static <T> ApiResponse<T> error(int code, String message, T data) {
+        return ApiResponse.<T>builder()
+                .code(code)
+                .msg(message)
+                .data(data)
+                .build();
+    }
 }
